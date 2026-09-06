@@ -8,11 +8,21 @@ const LIMIT = 13_312;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcPath = path.join(root, 'src', 'index.html');
+const logicPath = path.join(root, 'src', 'logic.js');
 const distDir = path.join(root, 'dist');
 const htmlPath = path.join(distDir, 'index.html');
 const zipPath = path.join(distDir, 'game.zip');
 
-const source = fs.readFileSync(srcPath, 'utf8');
+const htmlSource = fs.readFileSync(srcPath, 'utf8');
+const logicSource = fs.readFileSync(logicPath, 'utf8');
+const source = htmlSource.replace(
+  '<script src="./logic.js"></script>',
+  `<script>${logicSource}</script>`,
+);
+
+if (source === htmlSource) {
+  throw new Error('Could not inline src/logic.js: script tag not found in src/index.html');
+}
 
 const output = await minify(source, {
   collapseWhitespace: true,
@@ -38,14 +48,16 @@ const zip = zipSync(
 );
 fs.writeFileSync(zipPath, zip);
 
-const sourceBytes = Buffer.byteLength(source);
+const sourceHtmlBytes = Buffer.byteLength(htmlSource);
+const sourceLogicBytes = Buffer.byteLength(logicSource);
 const htmlBytes = Buffer.byteLength(output);
 const zipBytes = zip.length;
 const remaining = LIMIT - zipBytes;
 const percent = ((zipBytes / LIMIT) * 100).toFixed(1);
 
 console.log('\n=== js13k build report ===');
-console.log(`source html : ${sourceBytes.toLocaleString()} bytes`);
+console.log(`source html : ${sourceHtmlBytes.toLocaleString()} bytes`);
+console.log(`source logic: ${sourceLogicBytes.toLocaleString()} bytes`);
 console.log(`minified    : ${htmlBytes.toLocaleString()} bytes`);
 console.log(`game.zip    : ${zipBytes.toLocaleString()} / ${LIMIT.toLocaleString()} bytes (${percent}%)`);
 

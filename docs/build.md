@@ -4,7 +4,7 @@
 
 Keep the development source readable, then generate and measure the js13k submission artifact automatically.
 
-The hard size gate is:
+The submission size limit is:
 
 ```text
 13,312 bytes ZIP maximum
@@ -45,7 +45,7 @@ The build prints:
 - final ZIP size
 - remaining bytes or overflow bytes
 
-The command exits with an error when `game.zip` exceeds 13,312 bytes.
+When `game.zip` exceeds 13,312 bytes, the command prints a warning but still completes successfully. This keeps oversized development builds runnable while making the budget overrun visible.
 
 ## Why the first build pipeline is intentionally simple
 

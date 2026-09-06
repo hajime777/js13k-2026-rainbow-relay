@@ -24,11 +24,32 @@ npm run build
 
 `npm run build` creates `dist/index.html` and `dist/game.zip`, prints the byte budget, and shows a warning when the ZIP exceeds **13,312 bytes**. The build still completes so oversized development versions can be tested normally.
 
+## Automated tests
+
+Logic tests and UI tests are kept separate.
+
+The first implemented layer is the Playwright UI smoke test suite:
+
+```powershell
+npm install
+npm run test:setup
+npm run test:ui
+```
+
+To watch the browser while the test runs:
+
+```powershell
+npm run test:ui:headed
+```
+
+See `docs/testing.md` for the current checks and the planned logic / minified-build / ZIP test layers.
+
 ## Repository layout
 
 ```text
 src/       game source / current prototype
 tools/     build and size-budget tools
+tests/     logic and UI tests, kept separate
 docs/      design notes, build notes, experiments
 dist/      generated build output (not committed)
 ```

@@ -16,8 +16,10 @@
 </div>
 <div class="bottom"><div id="msg" class="msg">灰色の空をなぞってみてください。虹のある場所なら、その部分だけ現れます。</div><button id="reset">Restart</button></div>
 <div id="toast" class="toast"><div class="big">Rainbow Found!</div><div class="smalltxt">十分に虹が見えました。<br>雲が少し残っていてもクリアです。</div></div>
+<script src="./logic.js"></script>
 <script>
 (()=>{
+const {distancePointToSegment,revealPercent,isClearedPercent,markRevealPoints}=RainbowLogic;
 const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySelector('#pct'),fill=document.querySelector('#fill'),msg=document.querySelector('#msg'),toast=document.querySelector('#toast');
 const cleanCanvas=document.createElement('canvas'),cleanCtx=cleanCanvas.getContext('2d');
 const maskCanvas=document.createElement('canvas'),maskCtx=maskCanvas.getContext('2d');
@@ -39,20 +41,19 @@ function buildRainbowPoints(){points=[];rainbow={cx:W*.5,cy:H*.92,base:Math.min(
  }
 }
 function point(e){let r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function distSeg(px,py,a,b){let vx=b.x-a.x,vy=b.y-a.y,l=vx*vx+vy*vy;if(!l)return Math.hypot(px-a.x,py-a.y);let u=Math.max(0,Math.min(1,((px-a.x)*vx+(py-a.y)*vy)/l));return Math.hypot(px-a.x-vx*u,py-a.y-vy*u)}
 function scrub(a,b){let L=Math.hypot(b.x-a.x,b.y-a.y);if(L<1)return;
  maskCtx.save();maskCtx.lineCap='round';maskCtx.lineJoin='round';
  maskCtx.strokeStyle='rgba(255,255,255,.20)';maskCtx.lineWidth=98;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='rgba(255,255,255,.62)';maskCtx.lineWidth=78;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='#fff';maskCtx.lineWidth=54;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();maskCtx.restore();
- for(const q of clouds){let d=distSeg(q.x,q.y,a,b),r=q.s+44;if(d<r)q.d=Math.max(.18,q.d-(.02+(1-d/r)*.05))}
+ for(const q of clouds){let d=distancePointToSegment(q.x,q.y,a,b),r=q.s+44;if(d<r)q.d=Math.max(.18,q.d-(.02+(1-d/r)*.05))}
  markReveal(a,b,52);rebuildReveal();updateMeter()}
-function markReveal(a,b,r){for(const p of points){if(p.hit)continue;if(distSeg(p.x,p.y,a,b)<r){p.hit=1;revealed++}}}
-function updateMeter(){let ratio=revealed/Math.max(1,points.length),p=Math.floor(ratio*100);pct.textContent=p+'%';fill.style.width=p+'%';
+function markReveal(a,b,r){revealed+=markRevealPoints(points,a,b,r)}
+function updateMeter(){let p=revealPercent(revealed,points.length);pct.textContent=p+'%';fill.style.width=p+'%';
  if(p<8)msg.textContent='灰色の空をなぞってみてください。虹のある場所なら、その部分だけ現れます。';
  else if(p<22)msg.textContent='そうです。こすった場所だけ、曇りの向こうの青空が見えてきます。';
  else if(p<45)msg.textContent='いい感じです。虹は円弧の完成形で隠れています。カーブを追うと見つけやすいです。';
- else if(p<62)msg.textContent='もう少しです。左右の端や、まだ曇っている虹の帯を探してみてください。';
+ else if(!isClearedPercent(p))msg.textContent='もう少しです。左右の端や、まだ曇っている虹の帯を探してみてください。';
  else if(!cleared){cleared=1;msg.textContent='十分に虹が見つかりました。雲が少し残っていてもクリアです。';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}
 }
 function drawCleanScene(g){let sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#9fd8f4');sky.addColorStop(.58,'#c8eafd');sky.addColorStop(1,'#ecf7ff');g.fillStyle=sky;g.fillRect(0,0,W,H);

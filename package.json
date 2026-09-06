@@ -1,0 +1,16 @@
+{
+  "name": "js13k-2026-rainbow-relay",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite src --host 0.0.0.0",
+    "build": "node tools/build.mjs",
+    "size": "node tools/build.mjs"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.2",
+    "html-minifier-terser": "^7.2.0",
+    "vite": "^7.0.0"
+  }
+}

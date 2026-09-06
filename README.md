@@ -22,7 +22,7 @@ npm run dev
 npm run build
 ```
 
-`npm run build` creates `dist/index.html` and `dist/game.zip`, prints the byte budget, and fails when the ZIP exceeds **13,312 bytes**.
+`npm run build` creates `dist/index.html` and `dist/game.zip`, prints the byte budget, and shows a warning when the ZIP exceeds **13,312 bytes**. The build still completes so oversized development versions can be tested normally.
 
 ## Repository layout
 

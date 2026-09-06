@@ -30,7 +30,8 @@ npm run build
 Current pipeline:
 
 ```text
-src/index.html
+src/index.html + src/logic.js
+  -> inline shared logic into the HTML
   -> html-minifier-terser
   -> dist/index.html
   -> DEFLATE ZIP (fflate)
@@ -40,12 +41,15 @@ src/index.html
 
 The build prints:
 
-- development source size
+- development HTML source size
+- shared logic source size
 - minified HTML size
 - final ZIP size
 - remaining bytes or overflow bytes
 
 When `game.zip` exceeds 13,312 bytes, the command prints a warning but still completes successfully. This keeps oversized development builds runnable while making the budget overrun visible.
+
+`src/logic.js` is kept separate during development so the same production logic can be loaded by Node logic tests. It is automatically inlined into `dist/index.html`, so the submission artifact remains a single HTML file inside the ZIP.
 
 ## Why the first build pipeline is intentionally simple
 

@@ -4,41 +4,24 @@ function percentValue(text) {
   return Number.parseInt(String(text).replace('%', ''), 10) || 0;
 }
 
-async function dragAlongRainbow(page) {
+async function scrubRainbowArea(page) {
   const canvas = page.locator('#c');
   const box = await canvas.boundingBox();
   if (!box) throw new Error('Canvas bounding box is unavailable');
 
-  const W = box.width;
-  const H = box.height;
-  const cx = box.x + W * 0.5;
-  const cy = box.y + H * 0.92;
-  const base = Math.min(W * 0.43, H * 0.72);
-  const band = Math.max(8, Math.min(15, W / 90));
-  const radius = base - band * 3;
-  const start = Math.PI * 1.06;
-  const end = Math.PI * 1.94;
-  const steps = 42;
+  const left = box.x + box.width * 0.08;
+  const right = box.x + box.width * 0.92;
+  const rows = 9;
 
-  const first = {
-    x: cx + Math.cos(start) * radius,
-    y: cy + Math.sin(start) * radius,
-  };
-
-  await page.mouse.move(first.x, first.y);
-  await page.mouse.down();
-
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    const angle = start + (end - start) * t;
-    await page.mouse.move(
-      cx + Math.cos(angle) * radius,
-      cy + Math.sin(angle) * radius,
-      { steps: 2 },
-    );
+  for (let i = 0; i < rows; i++) {
+    const y = box.y + box.height * (0.24 + i * 0.075);
+    const from = i % 2 === 0 ? left : right;
+    const to = i % 2 === 0 ? right : left;
+    await page.mouse.move(from, y);
+    await page.mouse.down();
+    await page.mouse.move(to, y, { steps: 8 });
+    await page.mouse.up();
   }
-
-  await page.mouse.up();
 }
 
 test.describe('Rainbow Relay prototype UI', () => {
@@ -46,20 +29,26 @@ test.describe('Rainbow Relay prototype UI', () => {
     const pageErrors = [];
     page.on('pageerror', (error) => pageErrors.push(error.message));
 
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
     await expect(page.locator('.title')).toHaveText('Rainbow Sky Cleaner');
     await expect(page.locator('#pct')).toHaveText('0%');
     await expect(page.locator('#c')).toBeVisible();
     await expect(page.locator('#reset')).toBeVisible();
+
+    const canvasBox = await page.locator('#c').boundingBox();
+    expect(canvasBox).not.toBeNull();
+    expect(canvasBox.height).toBeGreaterThan(canvasBox.width);
+    expect(canvasBox.width / canvasBox.height).toBeCloseTo(9 / 16, 2);
     expect(pageErrors).toEqual([]);
   });
 
-  test('dragging over the hidden rainbow increases reveal progress and Restart resets it', async ({ page }) => {
+  test('scrubbing the visible sky increases reveal progress and Restart resets it', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
-    await dragAlongRainbow(page);
+    await scrubRainbowArea(page);
 
     await expect.poll(async () => {
       return percentValue(await page.locator('#pct').textContent());
@@ -101,7 +90,7 @@ test.describe('Rainbow Relay prototype UI', () => {
     await page.goto('/');
     await expect(page.locator('#pct')).toHaveText('0%');
 
-    await dragAlongRainbow(page);
+    await scrubRainbowArea(page);
 
     await expect.poll(async () => {
       return percentValue(await page.locator('#pct').textContent());

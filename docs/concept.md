@@ -10,6 +10,15 @@
 - Foreground clouds may remain; the goal is not to delete every cloud.
 - Progress is based on how much of the rainbow has been revealed.
 
+## Current presentation direction
+
+- The playable view is portrait, including on desktop/Windows.
+- The portrait playfield uses a 9:16 frame and is centered inside wider desktop browser windows.
+- The underlying sky composition is still treated like the previous 16:9 landscape scene and then cropped into the portrait frame.
+- The rainbow keeps the same scale it had in the landscape composition instead of shrinking to fit the portrait width.
+- The crop shows either the left or right side of that wider composition, so part of the rainbow naturally continues off-screen.
+- Foreground clouds are denser and use more rounded lobes for a fluffier silhouette, while preserving the existing colors, transparency, gradients, and overall visual style.
+
 ## Later direction under consideration
 
 - The playable sky may expand as the game progresses and become harder to clear.
@@ -28,5 +37,4 @@ The base game must be playable and completable with no network connection. Any o
 - What makes repeated play genuinely fun rather than only visually pleasant?
 - How should difficulty increase as the sky/world expands?
 - What exactly should online presence affect?
-- How should landscape and portrait views expose the same game world?
 - When and how should the unicorn constellation appear?

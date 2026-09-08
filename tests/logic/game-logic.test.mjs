@@ -6,18 +6,18 @@ const {
   CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
   distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
   seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
-  oppositeSide, routeStep, routeExit, finalPoint, rainbowPoint, rainbowBand,
+  oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
 } = globalThis.RainbowLogic;
 
 // PowerShell example:
-// $env:RAINBOW_TEST_SEEDS='762178515,3454744287,295455034'; npm run test:logic
-const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,3454744287,295455034,777')
+// $env:RAINBOW_TEST_SEEDS='762178515,2316340504,3454744287'; npm run test:logic
+const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,2316340504,3454744287,295455034,777')
   .split(',').map(s => s.trim()).filter(Boolean);
 
 function traceSeed(text) {
   const seed = seedHash(text), count = worldLength(seed), stages = [];
   let stage = 1, x = 0, y = 0, entry = BOTTOM;
-  let exit = seedUnit(seed, 0, 1) < .5 ? LEFT : RIGHT;
+  let exit = firstExit(seed);
   while (stage <= count) {
     if (stage === count) exit = -1;
     stages.push({ stage, x, y, entry, exit });
@@ -78,6 +78,7 @@ test('selected seed worlds are finite and connected', () => {
     assert.ok(world.count >= MIN_STAGE && world.count <= MAX_STAGE, `seed ${text}: length ${world.count}`);
     assert.equal(world.stages.length, world.count, `seed ${text}: trace length`);
     assert.equal(world.stages[0].entry, BOTTOM, `seed ${text}: first entry`);
+    assert.equal(world.stages[0].exit, firstExit(world.seed), `seed ${text}: first exit`);
     assert.equal(world.stages.at(-1).exit, -1, `seed ${text}: final exit`);
     for (let i = 1; i < world.stages.length; i++) {
       const a = world.stages[i - 1], b = world.stages[i], step = routeStep(a.exit);

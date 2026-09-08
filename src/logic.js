@@ -136,6 +136,25 @@
     return { x: w * v, y: h };
   }
 
+  function finalPoint(seed, stage, entry, w, h) {
+    const r = seedUnit(seed, stage, 997, entry);
+    if (r < 0.36) {
+      const p = edgePoint(seed, BOTTOM, stage + 409, w, h);
+      return { x: p.x, y: p.y, side: BOTTOM };
+    }
+    if (r < 0.60) {
+      let side = seedUnit(seed, stage, 1009, entry) < 0.5 ? LEFT : RIGHT;
+      if (side === entry) side = oppositeSide(side);
+      const p = edgePoint(seed, side, stage + 419, w, h);
+      return { x: p.x, y: p.y, side };
+    }
+    return {
+      x: w * (0.30 + 0.40 * seedUnit(seed, stage, 31)),
+      y: h * (0.30 + 0.40 * seedUnit(seed, stage, 47)),
+      side: -1,
+    };
+  }
+
   function inward(side) {
     return { x: side === LEFT ? 1 : side === RIGHT ? -1 : 0, y: side === TOP ? 1 : side === BOTTOM ? -1 : 0 };
   }
@@ -162,21 +181,20 @@
     const w = rainbow.w, h = rainbow.h, seed = rainbow.seed >>> 0, g = seedGenes(seed);
     if (stage === 1) return firstPoint(u, rainbow);
     const start = edgePoint(seed, rainbow.entry, stage - 1, w, h);
-    let end;
+    let end, endSide = rainbow.exit;
     if (rainbow.exit < 0) {
-      end = {
-        x: w * (0.35 + 0.30 * seedUnit(seed, stage, 31)),
-        y: h * (0.35 + 0.30 * seedUnit(seed, stage, 47)),
-      };
+      end = finalPoint(seed, stage, rainbow.entry, w, h);
+      endSide = end.side;
     } else {
       end = edgePoint(seed, rainbow.exit, stage, w, h);
     }
     const n0 = inward(rainbow.entry);
     let n1;
-    if (rainbow.exit < 0) {
+    if (endSide >= 0) n1 = inward(endSide);
+    else {
       const dx = start.x - end.x, dy = start.y - end.y, l = Math.hypot(dx, dy) || 1;
       n1 = { x: dx / l, y: dy / l };
-    } else n1 = inward(rainbow.exit);
+    }
     const m = Math.min(w, h);
     const bend = m * (0.27 + 0.20 * g.bend + 0.05 * seedUnit(seed, stage, 13));
     const c1 = { x: start.x + n0.x * bend, y: start.y + n0.y * bend };
@@ -229,6 +247,6 @@
     CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
     seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
-    oppositeSide, routeStep, routeExit, rainbowPoint, rainbowBand,
+    oppositeSide, routeStep, routeExit, finalPoint, rainbowPoint, rainbowBand,
   });
 })();

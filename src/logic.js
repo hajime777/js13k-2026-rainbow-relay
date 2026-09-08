@@ -31,7 +31,11 @@
   }
 
   function seedHash(value) {
-    const s = String(value);
+    const s = String(value).trim();
+    if (/^\d{1,10}$/.test(s)) {
+      const n = Number(s);
+      if (n <= 4294967295) return n >>> 0;
+    }
     let h = 2166136261;
     for (let i = 0; i < s.length; i++) {
       h ^= s.charCodeAt(i);
@@ -57,9 +61,42 @@
     return seedMix(seed, a, b, c) / 4294967296;
   }
 
+  function lengthFromCode(code) {
+    const r = code / 31;
+    return Math.min(MAX_STAGE, MIN_STAGE + Math.floor(r * r * r * (MAX_STAGE - MIN_STAGE + 1)));
+  }
+
+  function seedGenes(seed) {
+    seed >>>= 0;
+    return {
+      length: lengthFromCode((seed >>> 27) & 31),
+      bend: ((seed >>> 23) & 15) / 15,
+      width: ((seed >>> 19) & 15) / 15,
+      twist: ((seed >>> 15) & 15) / 15,
+      color: ((seed >>> 11) & 15) / 15,
+      turn: ((seed >>> 8) & 7) / 7,
+      branch: ((seed >>> 5) & 7) / 7,
+      detail: seed & 31,
+    };
+  }
+
+  function seedFromGenes(g = {}) {
+    const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, Number(v) || 0));
+    const wanted = clamp(g.length ?? 12, MIN_STAGE, MAX_STAGE);
+    let lc = 0, best = 1e9;
+    for (let i = 0; i < 32; i++) {
+      const d = Math.abs(lengthFromCode(i) - wanted);
+      if (d < best) { best = d; lc = i; }
+    }
+    const q4 = v => Math.round(clamp(v) * 15);
+    const q3 = v => Math.round(clamp(v) * 7);
+    const detail = Math.max(0, Math.min(31, Math.round(Number(g.detail) || 0)));
+    return (lc << 27 | q4(g.bend) << 23 | q4(g.width) << 19 | q4(g.twist) << 15 |
+      q4(g.color) << 11 | q3(g.turn) << 8 | q3(g.branch) << 5 | detail) >>> 0;
+  }
+
   function worldLength(seed) {
-    const r = seedUnit(seed, 911);
-    return MIN_STAGE + Math.floor(r * r * r * (MAX_STAGE - MIN_STAGE + 1));
+    return seedGenes(seed).length;
   }
 
   function oppositeSide(side) {
@@ -72,9 +109,10 @@
 
   function routeExit(seed, stage, entry, x = 0, y = 0) {
     const r = seedUnit(seed, stage, x * 37 + y * 101, entry + 503);
-    if (r < 0.7) return oppositeSide(entry);
-    if (entry < 2) return r < 0.85 ? TOP : BOTTOM;
-    return r < 0.85 ? LEFT : RIGHT;
+    const forward = 0.84 - 0.34 * seedGenes(seed).turn;
+    if (r < forward) return oppositeSide(entry);
+    if (entry < 2) return r < (1 + forward) / 2 ? TOP : BOTTOM;
+    return r < (1 + forward) / 2 ? LEFT : RIGHT;
   }
 
   function firstRadius(w, h) {
@@ -82,7 +120,8 @@
   }
 
   function edgeValue(seed, key) {
-    return 0.30 + 0.40 * seedUnit(seed, key, 701);
+    const g = seedGenes(seed);
+    return 0.34 + (0.32 + 0.12 * g.bend) * seedUnit(seed, key, 701);
   }
 
   function edgePoint(seed, side, key, w, h) {
@@ -120,7 +159,7 @@
   }
 
   function centerPoint(stage, u, rainbow) {
-    const w = rainbow.w, h = rainbow.h, seed = rainbow.seed >>> 0;
+    const w = rainbow.w, h = rainbow.h, seed = rainbow.seed >>> 0, g = seedGenes(seed);
     if (stage === 1) return firstPoint(u, rainbow);
     const start = edgePoint(seed, rainbow.entry, stage - 1, w, h);
     let end;
@@ -139,14 +178,14 @@
       n1 = { x: dx / l, y: dy / l };
     } else n1 = inward(rainbow.exit);
     const m = Math.min(w, h);
-    const bend = m * (0.34 + 0.08 * seedUnit(seed, stage, 13));
+    const bend = m * (0.27 + 0.20 * g.bend + 0.05 * seedUnit(seed, stage, 13));
     const c1 = { x: start.x + n0.x * bend, y: start.y + n0.y * bend };
     const c2 = { x: end.x + n1.x * bend, y: end.y + n1.y * bend };
     const p = bezier(start, c1, c2, end, u);
     const e = Math.sin(Math.PI * u);
-    const amp = m * (0.004 + 0.018 * seedUnit(seed, stage, 17));
+    const amp = m * (0.002 + 0.024 * g.twist);
     const phase = seedUnit(seed, stage, 19) * Math.PI * 2;
-    const freq = 1 + seedMix(seed, stage, 23) % 2;
+    const freq = 1 + Math.floor(g.twist * 2 + seedUnit(seed, stage, 23) * 1.5);
     const q0 = bezier(start, c1, c2, end, Math.max(0, u - 0.003));
     const q1 = bezier(start, c1, c2, end, Math.min(1, u + 0.003));
     const dx = q1.x - q0.x, dy = q1.y - q0.y, l = Math.hypot(dx, dy) || 1;
@@ -158,9 +197,10 @@
     if (stage === 1) return firstPoint(u, rainbow, offset);
     const p = centerPoint(stage, u, rainbow);
     if (!offset) return p;
+    const g = seedGenes(rainbow.seed >>> 0);
     const e = Math.sin(Math.PI * u), phase = seedUnit(rainbow.seed >>> 0, stage, 331) * Math.PI * 2;
-    offset = offset * (1 + e * 0.18 * Math.sin(u * Math.PI * 2 + phase)) +
-      e * Math.min(rainbow.w, rainbow.h) * 0.004 * Math.sin(u * Math.PI * 2 + phase + offset * 0.11);
+    offset = offset * (1 + e * (0.03 + 0.28 * g.width) * Math.sin(u * Math.PI * 2 + phase)) +
+      e * Math.min(rainbow.w, rainbow.h) * (0.001 + 0.012 * g.twist) * Math.sin(u * Math.PI * 2 + phase + offset * 0.11);
     const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
     const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
@@ -180,14 +220,15 @@
 
   function rainbowBand(stage, index, band, seed = 0) {
     if (stage === 1) return { width: band, offset: index * band * 0.90 };
-    const width = band * (0.76 + 0.42 * seedUnit(seed, index, 101));
+    const g = seedGenes(seed), n = seedUnit(seed, index, 101) * 2 - 1;
+    const width = band * (0.82 + 0.36 * g.width) * (1 + n * (0.03 + 0.24 * g.color));
     return { width, offset: index * band * 0.90 };
   }
 
   globalThis.RainbowLogic = Object.freeze({
     CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
-    seedHash, seedMix, seedUnit, worldLength, oppositeSide, routeStep, routeExit,
-    rainbowPoint, rainbowBand,
+    seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
+    oppositeSide, routeStep, routeExit, rainbowPoint, rainbowBand,
   });
 })();

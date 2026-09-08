@@ -21,19 +21,19 @@
 <script src="./logic.js"></script>
 <script>
 (()=>{
-const {LEFT,RIGHT,distancePointToSegment,revealPercent,isClearedPercent,markRevealPoints,seedHash,seedUnit,worldLength,oppositeSide,routeStep,routeExit,rainbowPoint,rainbowBand}=RainbowLogic;
+const {LEFT,RIGHT,BOTTOM,distancePointToSegment,revealPercent,isClearedPercent,markRevealPoints,seedHash,seedUnit,worldLength,oppositeSide,routeStep,firstExit,routeExit,rainbowPoint,rainbowBand}=RainbowLogic;
 const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySelector('#pct'),fill=document.querySelector('#fill'),clearDialog=document.querySelector('#clearDialog'),clearText=document.querySelector('#clearText'),nextBtn=document.querySelector('#next'),seedInput=document.querySelector('#seed');
 const cleanCanvas=document.createElement('canvas'),cleanCtx=cleanCanvas.getContext('2d');
 const maskCanvas=document.createElement('canvas'),maskCtx=maskCanvas.getContext('2d');
 const revealCanvas=document.createElement('canvas'),revealCtx=revealCanvas.getContext('2d');
 const fromCanvas=document.createElement('canvas'),fromCtx=fromCanvas.getContext('2d'),toCanvas=document.createElement('canvas'),toCtx=toCanvas.getContext('2d');
 const C=['#f3a4b8','#f6bb91','#f1d97d','#a8d69f','#92cce8','#abaee8','#d4afe4'];
-let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1,mapX=0,mapY=0,entrySide=LEFT,exitSide=RIGHT,history=[],overview=0,transition=0,transT=0,transSide=RIGHT,seedText='',worldSeed=1,maxStage=4,randSeq=0;
+let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1,mapX=0,mapY=0,entrySide=BOTTOM,exitSide=RIGHT,history=[],overview=0,transition=0,transT=0,transSide=RIGHT,seedText='',worldSeed=1,maxStage=4,randSeq=0;
 const rnd=(a,b)=>a+seedUnit(worldSeed,stage,randSeq++,mapX*97+mapY*193)*(b-a);
 function freshSeed(){let q=globalThis.crypto;return String(q?.getRandomValues?q.getRandomValues(new Uint32Array(1))[0]:Date.now()>>>0)}
 function resize(){D=Math.min(1.5,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0);for(const q of [cleanCanvas,maskCanvas,revealCanvas]){q.width=Math.floor(W*D);q.height=Math.floor(H*D)}for(const q of [fromCanvas,toCanvas]){q.width=c.width;q.height=c.height}cleanCtx.setTransform(D,0,0,D,0,0);maskCtx.setTransform(D,0,0,D,0,0);revealCtx.setTransform(D,0,0,D,0,0);transition=0;overview?drawOverview():startStage()}
 function applySeed(v){seedText=String(v).trim()||freshSeed();seedInput.value=seedText;worldSeed=seedHash(seedText);maxStage=worldLength(worldSeed);restartGame()}
-function restartGame(){stage=1;mapX=0;mapY=0;history=[];overview=0;transition=0;transT=0;entrySide=seedUnit(worldSeed,0,1)<.5?LEFT:RIGHT;exitSide=oppositeSide(entrySide);nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';startStage()}
+function restartGame(){stage=1;mapX=0;mapY=0;history=[];overview=0;transition=0;transT=0;entrySide=BOTTOM;exitSide=firstExit(worldSeed);nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';startStage()}
 function startStage(){clouds=[];rain=[];revealed=0;down=0;last=null;mouse={x:-99,y:-99};cleared=0;randSeq=0;cropSide=rnd(0,1)<.5?-1:1;SW=H*16/9;CX=cropSide<0?0:Math.max(0,SW-W);clearDialog.classList.remove('show');nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';maskCtx.save();maskCtx.setTransform(1,0,0,1,0,0);maskCtx.clearRect(0,0,maskCanvas.width,maskCanvas.height);maskCtx.restore();
  const cols=Math.max(6,Math.floor(W/105)),rows=Math.max(5,Math.floor(H/135));
  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let cx=(i+.5)*W/cols+rnd(-45,45),cy=115+(j+.45)*(H*.64-70)/rows+rnd(-28,28),s=rnd(38,64);clouds.push({x:cx,y:cy,s,d:1,p:rnd(0,6.28),vx:0,vy:0});if(rnd(0,1)<.68)clouds.push({x:cx+rnd(-55,55),y:cy+rnd(-20,20),s:s*rnd(.62,.84),d:1,p:rnd(0,6.28),vx:0,vy:0})}

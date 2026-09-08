@@ -45,11 +45,12 @@
   }
 
   function routeExit(stage, entry) {
-    if (stage === 1) return BOTTOM;
+    if (stage === 1) return RIGHT;
     return (entry + (stage * 5) % 4) % 4;
   }
 
   function edgeValue(key) {
+    if (key === 1) return 0.78;
     const n = Math.sin((key + 1) * 12.9898) * 43758.5453;
     return 0.24 + 0.52 * (n - Math.floor(n));
   }
@@ -79,6 +80,11 @@
 
   function centerPoint(stage, u, rainbow) {
     const w = rainbow.w, h = rainbow.h;
+    if (stage === 1) {
+      const a = Math.PI + Math.PI * u;
+      const r = w * 0.5;
+      return { x: w * 0.5 + Math.cos(a) * r, y: h * 0.78 + Math.sin(a) * r };
+    }
     const start = edgePoint(rainbow.entry, stage - 1, w, h);
     let end;
     if (rainbow.exit < 0) {
@@ -100,7 +106,7 @@
     }
 
     const m = Math.min(w, h);
-    const bend = m * (stage === 1 ? 0.55 : 0.34 + 0.10 * edgeValue(stage + 2));
+    const bend = m * (0.34 + 0.10 * edgeValue(stage + 2));
     const c1 = { x: start.x + n0.x * bend, y: start.y + n0.y * bend };
     const c2 = { x: end.x + n1.x * bend, y: end.y + n1.y * bend };
     let p = bezier(start, c1, c2, end, u);

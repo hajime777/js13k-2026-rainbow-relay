@@ -13,62 +13,66 @@
 <canvas id="c"></canvas>
 <div class="hud"><div class="title">Rainbow Sky Cleaner</div></div>
 <div class="bottom">
-  <div id="clearDialog" class="clearDialog"><div class="clearText">僕が見つけた虹です</div><button id="next">OK</button></div>
+  <div id="clearDialog" class="clearDialog"><div id="clearText" class="clearText">僕が見つけた虹です</div><button id="next">OK</button></div>
   <div class="controls"><div class="progress"><div class="meter"><div id="fill" class="fill"></div></div><span id="pct" class="pct">0%</span></div><button id="reset">Restart</button></div>
 </div>
 </div>
 <script src="./logic.js"></script>
 <script>
 (()=>{
-const {distancePointToSegment,revealPercent,isClearedPercent,markRevealPoints,rainbowPoint,rainbowBand}=RainbowLogic;
-const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySelector('#pct'),fill=document.querySelector('#fill'),clearDialog=document.querySelector('#clearDialog');
+const {MAX_STAGE,LEFT,RIGHT,BOTTOM,distancePointToSegment,revealPercent,isClearedPercent,markRevealPoints,oppositeSide,routeStep,routeExit,rainbowPoint,rainbowBand}=RainbowLogic;
+const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySelector('#pct'),fill=document.querySelector('#fill'),clearDialog=document.querySelector('#clearDialog'),clearText=document.querySelector('#clearText'),nextBtn=document.querySelector('#next');
 const cleanCanvas=document.createElement('canvas'),cleanCtx=cleanCanvas.getContext('2d');
 const maskCanvas=document.createElement('canvas'),maskCtx=maskCanvas.getContext('2d');
 const revealCanvas=document.createElement('canvas'),revealCtx=revealCanvas.getContext('2d');
 const C=['#f3a4b8','#f6bb91','#f1d97d','#a8d69f','#92cce8','#abaee8','#d4afe4'];
-let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1;
+let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1,mapX=0,mapY=0,entrySide=LEFT,exitSide=BOTTOM,history=[],overview=0;
 const rnd=(a,b)=>a+Math.random()*(b-a);
-function resize(){D=Math.min(1.5,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0);for(const q of [cleanCanvas,maskCanvas,revealCanvas]){q.width=Math.floor(W*D);q.height=Math.floor(H*D)}cleanCtx.setTransform(D,0,0,D,0,0);maskCtx.setTransform(D,0,0,D,0,0);revealCtx.setTransform(D,0,0,D,0,0);reset()}
-function reset(next=0){if(next)stage++;clouds=[];rain=[];revealed=0;down=0;last=null;cleared=0;cropSide=Math.random()<.5?-1:1;SW=H*16/9;CX=cropSide<0?0:Math.max(0,SW-W);clearDialog.classList.remove('show');maskCtx.save();maskCtx.setTransform(1,0,0,1,0,0);maskCtx.clearRect(0,0,maskCanvas.width,maskCanvas.height);maskCtx.restore();
+function resize(){D=Math.min(1.5,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0);for(const q of [cleanCanvas,maskCanvas,revealCanvas]){q.width=Math.floor(W*D);q.height=Math.floor(H*D)}cleanCtx.setTransform(D,0,0,D,0,0);maskCtx.setTransform(D,0,0,D,0,0);revealCtx.setTransform(D,0,0,D,0,0);overview?drawOverview():startStage()}
+function restartGame(){stage=1;mapX=0;mapY=0;history=[];overview=0;entrySide=Math.random()<.5?LEFT:RIGHT;exitSide=BOTTOM;nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';startStage()}
+function startStage(){clouds=[];rain=[];revealed=0;down=0;last=null;cleared=0;cropSide=Math.random()<.5?-1:1;SW=H*16/9;CX=cropSide<0?0:Math.max(0,SW-W);clearDialog.classList.remove('show');nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';maskCtx.save();maskCtx.setTransform(1,0,0,1,0,0);maskCtx.clearRect(0,0,maskCanvas.width,maskCanvas.height);maskCtx.restore();
  const cols=Math.max(6,Math.floor(W/105)),rows=Math.max(5,Math.floor(H/135));
  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let cx=(i+.5)*W/cols+rnd(-45,45),cy=115+(j+.45)*(H*.64-70)/rows+rnd(-28,28),s=rnd(38,64);clouds.push({x:cx,y:cy,s,d:1,p:rnd(0,6.28),vx:0,vy:0});if(Math.random()<.68)clouds.push({x:cx+rnd(-55,55),y:cy+rnd(-20,20),s:s*rnd(.62,.84),d:1,p:rnd(0,6.28),vx:0,vy:0})}
  for(let i=0;i<Math.max(40,W*H/22000);i++)rain.push({x:Math.random()*W,y:Math.random()*H,l:rnd(7,15),v:rnd(110,210)});
  buildRainbowPoints();prepareStaticScene();rebuildReveal();updateMeter()}
-function buildRainbowPoints(){points=[];rainbow={cx:SW*.5-CX,cy:H*.92,base:Math.min(SW*.43,H*.72),band:Math.max(8,Math.min(15,SW/90)),a0:Math.PI*1.06,a1:Math.PI*1.94};
- const count=84,mid=rainbowBand(stage,3,rainbow.band);
- for(let i=0;i<count;i++){
-   let u=i/(count-1),p=rainbowPoint(stage,u,rainbow,mid.offset);
-   if(p.x>=0&&p.x<=W&&p.y>=0&&p.y<=H)points.push({x:p.x,y:p.y,hit:0});
- }
+function buildRainbowPoints(){points=[];rainbow={w:W,h:H,entry:entrySide,exit:exitSide,band:Math.max(8,Math.min(14,W/28))};
+ const count=96,mid=rainbowBand(stage,3,rainbow.band);
+ for(let i=0;i<count;i++){let u=i/(count-1),p=rainbowPoint(stage,u,rainbow,mid.offset);if(p.x>=0&&p.x<=W&&p.y>=0&&p.y<=H)points.push({x:p.x,y:p.y,hit:0})}
 }
 function point(e){let r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function scrub(a,b){if(cleared)return;let dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<1)return;let nx=dx/L,ny=dy/L;
+function scrub(a,b){if(cleared||overview)return;let dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<1)return;let nx=dx/L,ny=dy/L;
  maskCtx.save();maskCtx.lineCap='round';maskCtx.lineJoin='round';
  maskCtx.strokeStyle='rgba(255,255,255,.20)';maskCtx.lineWidth=98;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='rgba(255,255,255,.62)';maskCtx.lineWidth=78;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='#fff';maskCtx.lineWidth=54;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();maskCtx.restore();
  for(const q of clouds){let d=distancePointToSegment(q.x,q.y,a,b),r=q.s+44;if(d<r){let f=1-d/r,push=Math.min(190,55+L*5)*f;q.d=Math.max(.18,q.d-(.02+f*.05));q.vx=Math.max(-260,Math.min(260,q.vx+nx*push));q.vy=Math.max(-260,Math.min(260,q.vy+ny*push))}}
- markReveal(a,b,52);rebuildReveal();updateMeter()}
-function markReveal(a,b,r){revealed+=markRevealPoints(points,a,b,r)}
+ revealed+=markRevealPoints(points,a,b,52);rebuildReveal();updateMeter()}
 function updateMeter(){let p=revealPercent(revealed,points.length);pct.textContent=p+'%';fill.style.width=p+'%';
- if(isClearedPercent(p)&&!cleared){cleared=1;down=0;last=null;clearDialog.classList.add('show')}
+ if(isClearedPercent(p)&&!cleared){cleared=1;down=0;last=null;captureStage();clearDialog.classList.add('show')}
 }
+function captureStage(){if(history.length>=stage)return;let bands=[];for(let i=0;i<7;i++){let b=rainbowBand(stage,i,rainbow.band),ps=[];for(let j=0;j<=72;j++){let p=rainbowPoint(stage,j/72,rainbow,b.offset);ps.push([p.x/W,p.y/H])}bands.push({w:b.width/W,p:ps})}history.push({x:mapX,y:mapY,b:bands})}
+function nextStage(){if(stage>=MAX_STAGE){showOverview();return}let s=routeStep(exitSide);mapX+=s.x;mapY+=s.y;entrySide=oppositeSide(exitSide);stage++;exitSide=stage===MAX_STAGE?-1:routeExit(stage,entrySide);startStage()}
+function showOverview(){overview=1;down=0;last=null;clearText.textContent=MAX_STAGE+'つの空で見つけた虹です';nextBtn.style.display='none';clearDialog.classList.add('show');pct.textContent=MAX_STAGE+'/'+MAX_STAGE;fill.style.width='100%';drawOverview()}
 function drawCleanScene(g){let sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#9fd8f4');sky.addColorStop(.58,'#c8eafd');sky.addColorStop(1,'#ecf7ff');g.fillStyle=sky;g.fillRect(0,0,W,H);
  let sx=SW*.82-CX,sy=H*.18,rg=g.createRadialGradient(sx,sy,0,sx,sy,150);rg.addColorStop(0,'rgba(255,249,206,.72)');rg.addColorStop(1,'rgba(255,249,206,0)');g.fillStyle=rg;g.beginPath();g.arc(sx,sy,150,0,7);g.fill();
- let cx=SW*.5-CX,cy=H*.92,base=Math.min(SW*.43,H*.72),band=Math.max(8,Math.min(15,SW/90));rainbow={cx,cy,base,band,a0:Math.PI*1.06,a1:Math.PI*1.94};g.save();g.lineCap='round';g.lineJoin='round';for(let i=0;i<7;i++){let b=rainbowBand(stage,i,band);g.strokeStyle=C[i];g.globalAlpha=.88;g.lineWidth=b.width;g.beginPath();if(stage===1)g.arc(cx,cy,base-b.offset,rainbow.a0,rainbow.a1);else for(let j=0;j<=72;j++){let p=rainbowPoint(stage,j/72,rainbow,b.offset);j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y)}g.stroke()}g.restore();
- g.save();g.translate(-CX,0);g.fillStyle='#d9efda';g.beginPath();g.moveTo(0,H);g.bezierCurveTo(SW*.17,H*.80,SW*.35,H*.91,SW*.52,H*.84);g.bezierCurveTo(SW*.73,H*.72,SW*.88,H*.92,SW,H*.82);g.lineTo(SW,H);g.fill();g.restore();}
+ g.save();g.lineCap='round';g.lineJoin='round';for(let i=0;i<7;i++){let b=rainbowBand(stage,i,rainbow.band);g.strokeStyle=C[i];g.globalAlpha=.88;g.lineWidth=b.width;g.beginPath();for(let j=0;j<=72;j++){let p=rainbowPoint(stage,j/72,rainbow,b.offset);j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y)}g.stroke()}g.restore();
+ g.save();g.translate(-CX,0);g.fillStyle='#d9efda';g.beginPath();g.moveTo(0,H);g.bezierCurveTo(SW*.17,H*.80,SW*.35,H*.91,SW*.52,H*.84);g.bezierCurveTo(SW*.73,H*.72,SW*.88,H*.92,SW,H*.82);g.lineTo(SW,H);g.fill();g.restore()}
 function drawDirtyBase(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#c3c8d5');g.addColorStop(.56,'#cbd2dc');g.addColorStop(1,'#d8dfe3');x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle='rgba(148,155,171,.12)';x.fillRect(0,0,W,H);
- x.save();x.translate(-CX,0);x.fillStyle='#cbd8cf';x.beginPath();x.moveTo(0,H);x.bezierCurveTo(SW*.17,H*.80,SW*.35,H*.91,SW*.52,H*.84);x.bezierCurveTo(SW*.73,H*.72,SW*.88,H*.92,SW,H*.82);x.lineTo(SW,H);x.fill();x.restore();}
+ x.save();x.translate(-CX,0);x.fillStyle='#cbd8cf';x.beginPath();x.moveTo(0,H);x.bezierCurveTo(SW*.17,H*.80,SW*.35,H*.91,SW*.52,H*.84);x.bezierCurveTo(SW*.73,H*.72,SW*.88,H*.92,SW,H*.82);x.lineTo(SW,H);x.fill();x.restore()}
+function drawOverview(){let sky=x.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#9fd8f4');sky.addColorStop(.58,'#c8eafd');sky.addColorStop(1,'#ecf7ff');x.fillStyle=sky;x.fillRect(0,0,W,H);if(!history.length)return;
+ const a=H/W;let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;for(const h of history){minX=Math.min(minX,h.x);maxX=Math.max(maxX,h.x+1);minY=Math.min(minY,h.y*a);maxY=Math.max(maxY,(h.y+1)*a)}
+ const pad=26,ww=maxX-minX,wh=maxY-minY,s=Math.min((W-pad*2)/ww,(H-pad*2)/wh),ox=(W-ww*s)/2-minX*s,oy=(H-wh*s)/2-minY*s;
+ x.save();x.lineCap='round';x.lineJoin='round';for(const h of history)for(let i=0;i<7;i++){let b=h.b[i];x.strokeStyle=C[i];x.globalAlpha=.9;x.lineWidth=Math.max(1,b.w*s);x.beginPath();for(let j=0;j<b.p.length;j++){let p=b.p[j],px=ox+(h.x+p[0])*s,py=oy+(h.y*a+p[1]*a)*s;j?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}x.restore()}
 function drawRain(){x.strokeStyle='rgba(90,105,129,.20)';x.lineWidth=1.3;x.beginPath();for(const r of rain){x.moveTo(r.x,r.y);x.lineTo(r.x-3,r.y+r.l)}x.stroke()}
 function parts(g,cx,cy,s,fill){const P=[[-.68,.14,.45],[-.43,-.13,.54],[-.12,-.30,.65],[.22,-.22,.58],[.53,.02,.49],[.08,.19,.80]];g.beginPath();for(const p of P){g.moveTo(cx+p[0]*s+p[2]*s,cy+p[1]*s);g.arc(cx+p[0]*s,cy+p[1]*s,p[2]*s,0,6.283)}g.fillStyle=fill;g.fill()}
 function drawClouds(){for(const q of clouds){let ox=Math.sin(t*.55+q.p)*2,oy=Math.cos(t*.47+q.p)*1.2,cx=q.x+ox,cy=q.y+oy,s=q.s;parts(x,cx+4,cy+6,s,'rgba(93,101,122,'+(.10+.08*q.d)+')');parts(x,cx,cy,s,'rgba(245,246,249,'+(.26*(1-q.d))+')');parts(x,cx,cy,s,'rgba(154,161,178,'+(.78*q.d)+')')}}
 function prepareStaticScene(){cleanCtx.clearRect(0,0,W,H);drawCleanScene(cleanCtx)}
 function rebuildReveal(){revealCtx.clearRect(0,0,W,H);revealCtx.globalCompositeOperation='source-over';revealCtx.drawImage(cleanCanvas,0,0,W,H);revealCtx.globalCompositeOperation='destination-in';revealCtx.drawImage(maskCanvas,0,0,W,H);revealCtx.globalCompositeOperation='source-over'}
-function cursor(){if(mouse.x<0)return;x.save();x.strokeStyle='rgba(255,255,255,.72)';x.lineWidth=2;x.setLineDash([4,5]);x.beginPath();x.arc(mouse.x,mouse.y,28,0,7);x.stroke();x.restore()}
-function update(dt){t+=dt;let damp=Math.pow(.1,dt);for(const q of clouds){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=damp;q.vy*=damp}for(const r of rain){r.y+=r.v*dt;r.x-=15*dt;if(r.y>H+20){r.y=rnd(-100,-10);r.x=Math.random()*W}}}
-function draw(){drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H);drawClouds();cursor()}
+function cursor(){if(mouse.x<0||overview)return;x.save();x.strokeStyle='rgba(255,255,255,.72)';x.lineWidth=2;x.setLineDash([4,5]);x.beginPath();x.arc(mouse.x,mouse.y,28,0,7);x.stroke();x.restore()}
+function update(dt){if(overview)return;t+=dt;let damp=Math.pow(.1,dt);for(const q of clouds){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=damp;q.vy*=damp}for(const r of rain){r.y+=r.v*dt;r.x-=15*dt;if(r.y>H+20){r.y=rnd(-100,-10);r.x=Math.random()*W}}}
+function draw(){if(overview){drawOverview();return}drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H);drawClouds();cursor()}
 let prev=performance.now();function loop(n){let dt=Math.min(.033,(n-prev)/1000);prev=n;update(dt);draw();requestAnimationFrame(loop)}
-c.addEventListener('pointerdown',e=>{if(cleared)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=()=>{stage=1;reset()};document.querySelector('#next').onclick=()=>reset(1);addEventListener('resize',resize);resize();requestAnimationFrame(loop);
+c.addEventListener('pointerdown',e=>{if(cleared||overview)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=restartGame;nextBtn.onclick=nextStage;addEventListener('resize',resize);resize();restartGame();requestAnimationFrame(loop);
 })();
 </script>
 </body>

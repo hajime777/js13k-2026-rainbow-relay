@@ -6,7 +6,7 @@ const {
   CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
   distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
   seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
-  oppositeSide, routeStep, routeExit, rainbowPoint, rainbowBand,
+  oppositeSide, routeStep, routeExit, finalPoint, rainbowPoint, rainbowBand,
 } = globalThis.RainbowLogic;
 
 // PowerShell example:
@@ -61,7 +61,7 @@ test('numeric seed text is the actual 32-bit genome id', () => {
   assert.equal(seedMix(s, 1, 2, 3), seedMix(s, 1, 2, 3));
 });
 
-test('genome encoding exposes controllable traits', () => {
+test('genome encoding exposes controllable tendencies', () => {
   const seed = seedFromGenes({ length: 16, bend: .8, width: .9, twist: .9, color: .8, turn: .6, branch: .4, detail: 7 });
   const g = seedGenes(seed);
   assert.ok(g.length >= 14 && g.length <= 18);
@@ -102,7 +102,7 @@ test('selected seed geometry starts and exits on route sides', () => {
       const end = rainbowPoint(s.stage, 1, scene, 0);
       onSide(start, s.stage === 1 ? BOTTOM : s.entry, w, h, `seed ${text}: stage ${s.stage} start`);
       if (s.exit >= 0) onSide(end, s.exit, w, h, `seed ${text}: stage ${s.stage} exit`);
-      else assert.ok(end.x > 0 && end.x < w && end.y > 0 && end.y < h, `seed ${text}: final endpoint`);
+      else assert.ok(end.x >= 0 && end.x <= w && end.y >= 0 && end.y <= h, `seed ${text}: final endpoint`);
     }
   }
 });
@@ -144,6 +144,19 @@ test('high color gene increases band-width variation', () => {
     return Math.max(...widths) - Math.min(...widths);
   };
   assert.ok(spread(high) > spread(low));
+});
+
+test('classic candidate 2316340504 rises and returns to the original ground line', () => {
+  const world = traceSeed('2316340504');
+  assert.equal(world.count, 8);
+  const last = world.stages.at(-1);
+  assert.equal(last.y, 0);
+  const endInfo = finalPoint(world.seed, last.stage, last.entry, 100, 200);
+  assert.equal(endInfo.side, BOTTOM);
+  near(endInfo.y, 200, 'classic final local ground');
+  const scene = { w: 100, h: 200, entry: last.entry, exit: -1, seed: world.seed };
+  const end = rainbowPoint(last.stage, 1, scene, 0);
+  near(last.y * 200 + end.y, 200, 'classic global ground');
 });
 
 test('stage 1 stays a clean quarter circle regardless of genome weirdness', () => {

@@ -10,8 +10,8 @@ const {
 } = globalThis.RainbowLogic;
 
 // PowerShell example:
-// $env:RAINBOW_TEST_SEEDS='762178515,2316340504,3454744287'; npm run test:logic
-const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,2316340504,3454744287,295455034,777')
+// $env:RAINBOW_TEST_SEEDS='762178515,2670021042,2316340504'; npm run test:logic
+const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,2670021042,2316340504,3454744287,295455034,777')
   .split(',').map(s => s.trim()).filter(Boolean);
 
 function traceSeed(text) {
@@ -89,8 +89,9 @@ test('selected seed worlds are finite and connected', () => {
   }
 });
 
-test('regression seed 762178515 remains short', () => {
+test('reported seeds keep their expected lengths', () => {
   assert.equal(worldLength(seedHash('762178515')), 4);
+  assert.equal(worldLength(seedHash('2670021042')), 10);
 });
 
 test('selected seed geometry starts and exits on route sides', () => {
@@ -121,6 +122,26 @@ test('selected seed color bands connect across every screen boundary', () => {
         const pb = rainbowPoint(b.stage, 0, sb, rainbowBand(b.stage, i, band, world.seed).offset);
         near(a.x * w + pa.x, b.x * w + pb.x, `seed ${text}: ${a.stage}->${b.stage} band ${i} x`);
         near(a.y * h + pa.y, b.y * h + pb.y, `seed ${text}: ${a.stage}->${b.stage} band ${i} y`);
+      }
+    }
+  }
+});
+
+test('selected seed color bands do not jump inside a screen', () => {
+  const w = 100, h = 200, band = 12, samples = 256, maxStep = 30;
+  for (const text of TEST_SEEDS) {
+    const world = traceSeed(text);
+    for (const s of world.stages) {
+      const scene = { w, h, entry: s.entry, exit: s.exit, seed: world.seed };
+      for (let i = 0; i < 7; i++) {
+        const b = rainbowBand(s.stage, i, band, world.seed);
+        let prev = rainbowPoint(s.stage, 0, scene, b.offset);
+        for (let j = 1; j <= samples; j++) {
+          const p = rainbowPoint(s.stage, j / samples, scene, b.offset);
+          const d = Math.hypot(p.x - prev.x, p.y - prev.y);
+          assert.ok(d < maxStep, `seed ${text}: stage ${s.stage} band ${i} internal jump ${d}`);
+          prev = p;
+        }
       }
     }
   }

@@ -85,31 +85,32 @@ test('oppositeSide and routeStep describe neighboring screens', () => {
 });
 
 test('routeExit is deterministic without per-stage route data', () => {
-  assert.equal(routeExit(1, LEFT), BOTTOM);
+  assert.equal(routeExit(1, LEFT), RIGHT);
   assert.equal(routeExit(2, TOP), LEFT);
   assert.equal(routeExit(3, RIGHT), LEFT);
   assert.equal(routeExit(4, RIGHT), RIGHT);
 });
 
-test('stage 1 starts at a side and ends at the bottom', () => {
-  const leftScene = { w: 100, h: 200, entry: LEFT, exit: BOTTOM };
-  const rightScene = { w: 100, h: 200, entry: RIGHT, exit: BOTTOM };
-  const a = rainbowPoint(1, 0, leftScene);
-  const b = rainbowPoint(1, 0, rightScene);
-  const end = rainbowPoint(1, 1, leftScene);
-  assert.equal(a.x, 0);
-  assert.equal(b.x, 100);
-  assert.equal(end.y, 200);
+test('stage 1 is a normal semicircular rainbow from left to right', () => {
+  const scene = { w: 100, h: 200, entry: LEFT, exit: RIGHT };
+  const left = rainbowPoint(1, 0, scene);
+  const middle = rainbowPoint(1, 0.5, scene);
+  const right = rainbowPoint(1, 1, scene);
+  assert.ok(Math.abs(left.x) < 1e-9);
+  assert.ok(Math.abs(right.x - 100) < 1e-9);
+  assert.ok(Math.abs(left.y - right.y) < 1e-9);
+  assert.ok(middle.y < left.y);
+  assert.ok(Math.abs(middle.x - 50) < 1e-9);
 });
 
-test('adjacent stage endpoints line up on a shared screen boundary', () => {
-  const first = { w: 100, h: 200, entry: LEFT, exit: BOTTOM };
-  const second = { w: 100, h: 200, entry: TOP, exit: LEFT };
+test('stage 1 exit aligns with stage 2 entry on the shared boundary', () => {
+  const first = { w: 100, h: 200, entry: LEFT, exit: RIGHT };
+  const second = { w: 100, h: 200, entry: LEFT, exit: BOTTOM };
   const out = rainbowPoint(1, 1, first);
   const into = rainbowPoint(2, 0, second);
-  assert.ok(Math.abs(out.x - into.x) < 1e-9);
-  assert.equal(out.y, 200);
-  assert.equal(into.y, 0);
+  assert.equal(out.x, 100);
+  assert.equal(into.x, 0);
+  assert.ok(Math.abs(out.y - into.y) < 1e-9);
 });
 
 test('the last stage ends inside the screen instead of continuing through an edge', () => {

@@ -4,6 +4,15 @@
 
 別チャットで作成した調査結果や継続観測レポートは、原則としてここへ追加してください。
 
+## Reports
+
+- `2026-09-06_game-hackathon-contest-watch.md`
+  - js13kGames 2026 を参加候補として抽出した時点を含む、ゲーム系コンテスト定点観測
+- `2026-09-07_participation-and-rainbow-relay-status.md`
+  - js13kGames 2026 の参加方法、13KB制限、Online、Rainbow Relay の開発・テスト状況
+- `2026-09-08_js13k-monitoring.md`
+  - Draft公開範囲、2026 Submission Chromium validator、コミュニティ、技術ノウハウの定点観測
+
 ## 推奨ファイル名
 
 - `YYYY-MM-DD_<topic>.md`
@@ -20,6 +29,12 @@
 - 事実 / 推測 / 提案をできるだけ分ける
 - Rainbow Relay への影響や反映候補があれば明記する
 - 前回調査から変化した点があれば差分として残す
+
+## 観測境界
+
+Rainbow Relay のゲームデザインへの影響を避けるため、原則として他参加作品のゲーム内容・スクリーンショット・プレイ動画・実プレイは観測しません。
+
+参考対象は、公式ルール、Submissionシステム、コミュニティ上の技術情報、公開GitHubのビルド・テスト・圧縮構成などに限定します。
 
 ## 置き場所
 

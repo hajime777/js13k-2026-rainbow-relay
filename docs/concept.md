@@ -11,10 +11,11 @@
 - Foreground clouds may remain; the goal is not to delete every cloud.
 - Progress is based on how much of the rainbow has been revealed.
 - A stage clears when 90% of the visible rainbow has been revealed.
-- Stage 1 uses the normal circular rainbow arc.
+- Stage 1 uses the normal circular rainbow arc with the original band balance.
 - Stage 2 and later generate increasingly unusual rainbow paths procedurally from the stage number; no per-stage rainbow shape data is stored.
 - Early variants include a warped arc, an inverted arc, a horizontal straight rainbow, an S-like wave, a diagonal wave, and a sideways arc. The shape families repeat with stage-dependent variation.
-- After a clear, the game advances automatically to the next stage.
+- Stage 2 and later also vary rainbow band thickness and spacing procedurally; no per-stage band layout data is stored.
+- After a clear, the completed sky remains visible with a small bottom confirmation reading `僕が見つけた虹です`. The next stage starts only after the player presses `OK`.
 - Restart always returns the game to Stage 1 rather than restarting the current stage.
 
 ## Current presentation direction
@@ -25,6 +26,9 @@
 - The rainbow keeps the same scale it had in the landscape composition instead of shrinking to fit the portrait width.
 - The crop shows either the left or right side of that wider composition, so part of the rainbow naturally continues off-screen.
 - Foreground clouds are denser and use more rounded lobes for a fluffier silhouette, while preserving the existing colors, transparency, gradients, and overall visual style.
+- The top UI is intentionally minimal and shows only the title.
+- Reveal progress is a compact bar at the bottom.
+- The clear confirmation is also kept at the bottom so the revealed rainbow remains easy to view or capture with an external screenshot tool; the game itself does not provide screenshot functionality.
 
 ## Later direction under consideration
 

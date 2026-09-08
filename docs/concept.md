@@ -15,18 +15,19 @@
 
 - A run is a finite **seeded rainbow world**, closer to Minecraft-style world generation than a fixed stage list.
 - A random numeric seed is created on first load and shown in the Seed input at the bottom.
-- Numeric seed text is now used directly as the 32-bit world/genome ID. Non-numeric text such as `unicorn` is deterministically hashed to a 32-bit ID.
+- Numeric seed text is used directly as the 32-bit world/genome ID. Non-numeric text such as `unicorn` is deterministically hashed to a 32-bit ID.
 - The same seed therefore produces the same rainbow world on different clients.
 - The world is always finite: **minimum 4 screens, maximum 32 screens**.
 - Stage 1 rises from the bottom of the portrait screen and turns about 90 degrees toward either the left or right edge so the first reveal reads immediately as a conventional rainbow.
 - Stage 1 keeps regular, even color bands.
 - Initial cloud/rain placement is also seeded for the same stage/world position.
+- The generated final segment may end inside the sky, at a side edge, or naturally return to the bottom edge. This is derived from mixed seed detail, not from a dedicated ending-shape gene.
 
 ## Seed as a compact rainbow genome
 
-The 32-bit seed is no longer treated only as an opaque PRNG initializer. It also acts as a compact, controllable **rainbow genome**.
+The 32-bit seed is not treated only as an opaque PRNG initializer. It also acts as a compact, controllable **rainbow genome**.
 
-The current genome exposes these traits:
+The current genome exposes broad tendencies:
 
 - **length**: preferred world length / rarity of a long run.
 - **bend**: how strongly later segments curve away from a plain path.
@@ -37,21 +38,43 @@ The current genome exposes these traits:
 - **branch**: reserved in the genome now for later seeded branching; actual route branching is not implemented yet.
 - **detail**: low-level variation used so related genomes can still have different local shapes/routes.
 
-High-level traits are decoded directly from fixed seed bit ranges, while local details still use deterministic mixing from the whole seed. This creates a controllable seed space without making every generated curve fully authored.
+**Important design rule:** the genome must not contain direct shape labels such as `arc`, `classic`, `S-curve`, `ground-return`, or exact route templates. Those would make the mapping obvious and would turn seed discovery into disguised authored stage data.
 
-`seedFromGenes()` can synthesize a numeric seed from requested traits, and `seedGenes()` decodes a seed back into those traits. This is intended to support deliberate discovery/creation of interesting or "god" seeds without scanning the whole 32-bit seed space.
+High-level traits only bias broad statistical behavior. Local routes, exact curves, and ending behavior still emerge from deterministic mixing of the whole seed. This keeps the seed space controllable without making a numeric seed trivially decode into a visible shape.
+
+`seedFromGenes()` can synthesize a numeric seed from requested broad tendencies, and `seedGenes()` decodes those tendencies. Shape-level goals are evaluated only **after generation** as phenotype scores.
 
 ## Seed forge development tool
 
 `tools/seed-forge.mjs` is a development-only tool and is not part of the submission ZIP.
 
-Example:
+Strange-rainbow example:
 
 ```powershell
 npm run seed:forge -- --length 12:20 --twist high --width high --color high --turn .6 --count 8
 ```
 
-The forge constructs a small family of genomes matching the requested high-level traits, varies only a limited detail component, traces those candidates, and ranks them with a lightweight score that favors visible variation plus interesting turns/revisits. It is deliberately **not** a brute-force scan of the 32-bit seed space.
+The forge constructs a small family of genomes matching the requested broad tendencies, varies only a limited detail component, traces those candidates, and ranks them. It deliberately does **not** scan the whole 32-bit seed space.
+
+### Classic-rainbow phenotype search
+
+A conventional "ground -> sky -> ground" rainbow is deliberately **not** represented by a `classic` or `arc` gene.
+
+Instead, the forge can ask for a **classic phenotype**:
+
+```powershell
+npm run seed:forge -- --profile classic --length 8 --count 8
+```
+
+For this profile the forge uses broadly calm tendencies, evaluates the 32 possible low-level `detail` variants of that one genome family, then ranks the generated results by properties such as:
+
+- ending on the same global ground line where the rainbow began,
+- rising meaningfully above that ground,
+- having useful horizontal span,
+- avoiding excessive revisits/loops,
+- keeping the route reasonably simple.
+
+This is an inverse-design helper at the phenotype level, not a hidden shape template. One current regression/example candidate is Seed `2316340504`: its generated eight-screen route returns to the original ground line.
 
 The returned numeric Seed values can be pasted directly into the game.
 
@@ -65,14 +88,15 @@ The returned numeric Seed values can be pasted directly into the game.
 - Later rainbow segments can have different color-band widths, and the band spacing gently expands/contracts and shifts through the middle of a segment.
 - Those thickness/twist changes fade back to the common boundary profile near screen edges so adjacent screens still connect cleanly.
 - Longer loops, revisits, overlaps, and crossings can still happen.
-- The final generated segment does not continue through another screen edge. Its rainbow ends inside the screen.
+- The final generated segment does not continue to another screen; its deterministic endpoint may be interior, side, or ground.
 
 ## Logic-test strategy
 
 - Logic tests use a small, explicitly selected Seed list rather than brute-forcing many random seeds.
 - Override that list with `RAINBOW_TEST_SEEDS` when a newly discovered problematic Seed should become a regression case.
 - For each selected Seed, tests verify finite termination, route-entry continuity, geometry touching the declared edges, and seven-band continuity across every screen boundary.
-- Additional tests construct low/high genome traits directly to verify that twist and color genes actually change the intended geometry.
+- Additional tests construct low/high broad genome traits directly to verify that twist and color tendencies actually change the intended geometry.
+- A fixed classic candidate is tested directly; tests do not search for classic seeds.
 
 ## Final overview
 
@@ -97,8 +121,8 @@ The returned numeric Seed values can be pasted directly into the game.
 ## Later direction under consideration
 
 - Implement the already-reserved **branch** gene as real seeded route branching, so the same seed exposes the same choices to every player.
-- Explore whether nearby numeric genomes can be presented as recognizable "families" of related rainbows.
-- Refine the forge/God Score using actual visual/gameplay observations rather than making the score itself the game design.
+- Explore whether nearby numeric genomes can be presented as recognizable "families" of related rainbows without making exact visible shapes directly decodable.
+- Refine phenotype scores using actual visual/gameplay observations rather than making the score itself the game design.
 - A night transition may reveal a unicorn beyond the rainbow / at the end of the trail.
 - Online behavior is intentionally undecided. It does not have to be versus or co-op. A preferred direction is an indirect or surprising use where the player thinks: "Wait, THAT is the online part?"
 
@@ -107,12 +131,13 @@ The returned numeric Seed values can be pasted directly into the game.
 - The game must remain **offline-first**.
 - The final compressed submission must remain within the js13k **13,312-byte** limit.
 - Seed generation should remain code-driven rather than storing authored world/stage data.
+- Direct visible-shape genes/templates are intentionally avoided.
 - The development-only seed forge must stay outside the final ZIP.
 
 ## Open questions
 
-- Which genome ranges actually produce rainbows that are strange but still visually readable as rainbows?
+- Which broad genome ranges actually produce rainbows that are strange but still visually readable as rainbows?
 - How should the branch gene map to real branching without making the route confusing?
-- How should God Score be calibrated from play/visual feedback?
+- How should phenotype/God Score be calibrated from play/visual feedback?
 - How should the final overview frame the unicorn reveal?
 - What exactly should online presence affect?

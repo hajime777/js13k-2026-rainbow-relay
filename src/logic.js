@@ -77,11 +77,14 @@
   }
 
   function edgeValue(seed, key) {
-    if (key === 1) return 0.78;
     return 0.30 + 0.40 * seedUnit(seed, key, 701);
   }
 
   function edgePoint(seed, side, key, w, h) {
+    if (key === 1 && side < 2) {
+      const r = Math.min(w * 0.72, h * 0.42);
+      return { x: side === LEFT ? 0 : w, y: h - r };
+    }
     const v = edgeValue(seed, key);
     if (side === LEFT) return { x: 0, y: h * v };
     if (side === RIGHT) return { x: w, y: h * v };
@@ -104,9 +107,13 @@
   function centerPoint(stage, u, rainbow) {
     const w = rainbow.w, h = rainbow.h, seed = rainbow.seed >>> 0;
     if (stage === 1) {
-      const v = rainbow.entry === RIGHT ? 1 - u : u;
-      const a = Math.PI + Math.PI * v, r = w * 0.5;
-      return { x: w * 0.5 + Math.cos(a) * r, y: h * 0.78 + Math.sin(a) * r };
+      const r = Math.min(w * 0.72, h * 0.42), cy = h - r;
+      if (rainbow.exit === RIGHT) {
+        const a = Math.PI / 2 * (1 - u);
+        return { x: w - r + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+      }
+      const a = Math.PI / 2 + Math.PI / 2 * u;
+      return { x: r + Math.cos(a) * r, y: cy + Math.sin(a) * r };
     }
     const start = edgePoint(seed, rainbow.entry, stage - 1, w, h);
     let end;
@@ -143,11 +150,16 @@
   function rainbowPoint(stage, u, rainbow, offset = 0) {
     const p = centerPoint(stage, u, rainbow);
     if (!offset) return p;
+    if (stage > 1) {
+      const e = Math.sin(Math.PI * u), phase = seedUnit(rainbow.seed >>> 0, stage, 331) * Math.PI * 2;
+      offset = offset * (1 + e * 0.18 * Math.sin(u * Math.PI * 2 + phase)) +
+        e * Math.min(rainbow.w, rainbow.h) * 0.004 * Math.sin(u * Math.PI * 2 + phase + offset * 0.11);
+    }
     const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
     const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
     let nx = -dy / l, ny = dx / l, side = -1, k = 0;
-    if (u < 0.12) { side = rainbow.entry; k = 1 - u / 0.12; }
+    if (u < 0.12) { side = stage === 1 ? BOTTOM : rainbow.entry; k = 1 - u / 0.12; }
     else if (u > 0.88 && rainbow.exit >= 0) { side = rainbow.exit; k = (u - 0.88) / 0.12; }
     if (side >= 0) {
       const ex = side < 2 ? 0 : 1, ey = side < 2 ? 1 : 0;
@@ -161,9 +173,9 @@
   }
 
   function rainbowBand(stage, index, band, seed = 0) {
-    const width = band * (0.90 + 0.16 * seedUnit(seed, index, 101));
-    const spacing = band * (0.86 + 0.08 * seedUnit(seed, 0, 181));
-    return { width, offset: index * spacing };
+    if (stage === 1) return { width: band, offset: index * band * 0.90 };
+    const width = band * (0.76 + 0.42 * seedUnit(seed, index, 101));
+    return { width, offset: index * band * 0.90 };
   }
 
   globalThis.RainbowLogic = Object.freeze({

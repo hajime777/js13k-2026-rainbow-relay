@@ -70,11 +70,15 @@
   }
 
   function routeExit(seed, stage, entry, x = 0, y = 0) {
-    return seedMix(seed, stage, x, y) % 4;
+    const r = seedUnit(seed, stage, x * 37 + y * 101, entry + 503);
+    if (r < 0.7) return oppositeSide(entry);
+    if (entry < 2) return r < 0.85 ? TOP : BOTTOM;
+    return r < 0.85 ? LEFT : RIGHT;
   }
 
   function edgeValue(seed, key) {
-    return 0.22 + 0.56 * seedUnit(seed, key, 701);
+    if (key === 1) return 0.78;
+    return 0.30 + 0.40 * seedUnit(seed, key, 701);
   }
 
   function edgePoint(seed, side, key, w, h) {
@@ -108,8 +112,8 @@
     let end;
     if (rainbow.exit < 0) {
       end = {
-        x: w * (0.28 + 0.44 * seedUnit(seed, stage, 31)),
-        y: h * (0.28 + 0.44 * seedUnit(seed, stage, 47)),
+        x: w * (0.35 + 0.30 * seedUnit(seed, stage, 31)),
+        y: h * (0.35 + 0.30 * seedUnit(seed, stage, 47)),
       };
     } else {
       end = edgePoint(seed, rainbow.exit, stage, w, h);
@@ -121,14 +125,14 @@
       n1 = { x: dx / l, y: dy / l };
     } else n1 = inward(rainbow.exit);
     const m = Math.min(w, h);
-    const bend = m * (0.28 + 0.22 * seedUnit(seed, stage, 13));
+    const bend = m * (0.34 + 0.08 * seedUnit(seed, stage, 13));
     const c1 = { x: start.x + n0.x * bend, y: start.y + n0.y * bend };
     const c2 = { x: end.x + n1.x * bend, y: end.y + n1.y * bend };
-    let p = bezier(start, c1, c2, end, u);
+    const p = bezier(start, c1, c2, end, u);
     const e = Math.sin(Math.PI * u);
-    const amp = m * (0.015 + 0.055 * seedUnit(seed, stage, 17));
+    const amp = m * (0.004 + 0.018 * seedUnit(seed, stage, 17));
     const phase = seedUnit(seed, stage, 19) * Math.PI * 2;
-    const freq = 1 + seedMix(seed, stage, 23) % 3;
+    const freq = 1 + seedMix(seed, stage, 23) % 2;
     const q0 = bezier(start, c1, c2, end, Math.max(0, u - 0.003));
     const q1 = bezier(start, c1, c2, end, Math.min(1, u + 0.003));
     const dx = q1.x - q0.x, dy = q1.y - q0.y, l = Math.hypot(dx, dy) || 1;
@@ -142,15 +146,24 @@
     const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
     const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
-    return { x: p.x - dy / l * offset, y: p.y + dx / l * offset };
+    let nx = -dy / l, ny = dx / l, side = -1, k = 0;
+    if (u < 0.12) { side = rainbow.entry; k = 1 - u / 0.12; }
+    else if (u > 0.88 && rainbow.exit >= 0) { side = rainbow.exit; k = (u - 0.88) / 0.12; }
+    if (side >= 0) {
+      const ex = side < 2 ? 0 : 1, ey = side < 2 ? 1 : 0;
+      if (nx * ex + ny * ey < 0) { nx = -nx; ny = -ny; }
+      nx = nx * (1 - k) + ex * k;
+      ny = ny * (1 - k) + ey * k;
+      const q = Math.hypot(nx, ny) || 1;
+      nx /= q; ny /= q;
+    }
+    return { x: p.x + nx * offset, y: p.y + ny * offset };
   }
 
   function rainbowBand(stage, index, band, seed = 0) {
-    if (stage === 1) return { width: band, offset: index * band * 0.92 };
-    const width = band * (0.62 + 0.52 * seedUnit(seed, stage, index + 101));
-    const spacing = band * (0.70 + 0.18 * seedUnit(seed, stage, 181));
-    const offset = index * spacing + band * 0.12 * (seedUnit(seed, stage, index + 211) - seedUnit(seed, stage, 211));
-    return { width, offset };
+    const width = band * (0.90 + 0.16 * seedUnit(seed, index, 101));
+    const spacing = band * (0.86 + 0.08 * seedUnit(seed, 0, 181));
+    return { width, offset: index * spacing };
   }
 
   globalThis.RainbowLogic = Object.freeze({

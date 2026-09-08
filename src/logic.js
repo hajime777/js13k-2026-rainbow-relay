@@ -96,6 +96,19 @@
     };
   }
 
+  function rainbowBand(stage, index, band) {
+    if (stage === 1) return { width: band, offset: index * band * 0.92 };
+
+    const wave = 0.5 + 0.5 * Math.sin(stage * 1.17 + index * 1.71);
+    const width = band * (0.66 + 0.42 * wave);
+    const spacing = band * (0.76 + 0.08 * Math.sin(stage * 0.83));
+    const offset = index * spacing + band * 0.08 * (
+      Math.sin(stage * 0.61 + index * 1.37) - Math.sin(stage * 0.61)
+    );
+
+    return { width, offset };
+  }
+
   globalThis.RainbowLogic = Object.freeze({
     CLEAR_PERCENT,
     distancePointToSegment,
@@ -103,5 +116,6 @@
     isClearedPercent,
     markRevealPoints,
     rainbowPoint,
+    rainbowBand,
   });
 })();

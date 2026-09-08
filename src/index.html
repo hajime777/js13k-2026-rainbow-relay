@@ -73,7 +73,7 @@ function cursor(){if(mouse.x<0)return;x.save();x.strokeStyle='rgba(255,255,255,.
 function update(dt){t+=dt;let damp=Math.pow(.1,dt);for(const q of clouds){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=damp;q.vy*=damp}for(const r of rain){r.y+=r.v*dt;r.x-=15*dt;if(r.y>H+20){r.y=rnd(-100,-10);r.x=Math.random()*W}}}
 function draw(){drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H);drawClouds();cursor()}
 let prev=performance.now();function loop(n){let dt=Math.min(.033,(n-prev)/1000);prev=n;update(dt);draw();requestAnimationFrame(loop)}
-c.addEventListener('pointerdown',e=>{down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=()=>reset();addEventListener('resize',resize);resize();requestAnimationFrame(loop);
+c.addEventListener('pointerdown',e=>{down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=()=>{stage=1;reset()};addEventListener('resize',resize);resize();requestAnimationFrame(loop);
 })();
 </script>
 </body>

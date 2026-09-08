@@ -219,24 +219,15 @@
     if (stage === 1) return firstPoint(u, rainbow, offset);
     const p = centerPoint(stage, u, rainbow);
     if (!offset) return p;
-    const g = seedGenes(rainbow.seed >>> 0);
-    const e = Math.sin(Math.PI * u), phase = seedUnit(rainbow.seed >>> 0, stage, 331) * Math.PI * 2;
+    const seed = rainbow.seed >>> 0, g = seedGenes(seed);
+    const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     offset = offset * (1 + e * (0.03 + 0.28 * g.width) * Math.sin(u * Math.PI * 2 + phase)) +
       e * Math.min(rainbow.w, rainbow.h) * (0.001 + 0.012 * g.twist) * Math.sin(u * Math.PI * 2 + phase + offset * 0.11);
     const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
     const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
-    let nx = -dy / l, ny = dx / l, side = -1, k = 0;
-    if (u < 0.12) { side = rainbow.entry; k = 1 - u / 0.12; }
-    else if (u > 0.88 && rainbow.exit >= 0) { side = rainbow.exit; k = (u - 0.88) / 0.12; }
-    if (side >= 0) {
-      const ex = side < 2 ? 0 : 1, ey = side < 2 ? 1 : 0;
-      if (nx * ex + ny * ey < 0) { nx = -nx; ny = -ny; }
-      nx = nx * (1 - k) + ex * k;
-      ny = ny * (1 - k) + ey * k;
-      const q = Math.hypot(nx, ny) || 1;
-      nx /= q; ny /= q;
-    }
+    const sign = firstExit(seed) === LEFT ? -1 : 1;
+    const nx = -dy / l * sign, ny = dx / l * sign;
     return { x: p.x + nx * offset, y: p.y + ny * offset };
   }
 

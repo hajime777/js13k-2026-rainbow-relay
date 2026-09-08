@@ -12,9 +12,10 @@
 - Progress is based on how much of the rainbow has been revealed.
 - A stage clears when 90% of the visible rainbow has been revealed.
 - Stage 1 uses the normal circular rainbow arc.
-- Stage 2 and later procedurally deform the rainbow from the stage number; no per-stage rainbow shape data is stored.
-- Deformation grows over the early stages while staying deterministic for the same stage number.
+- Stage 2 and later generate increasingly unusual rainbow paths procedurally from the stage number; no per-stage rainbow shape data is stored.
+- Early variants include a warped arc, an inverted arc, a horizontal straight rainbow, an S-like wave, a diagonal wave, and a sideways arc. The shape families repeat with stage-dependent variation.
 - After a clear, the game advances automatically to the next stage.
+- Restart always returns the game to Stage 1 rather than restarting the current stage.
 
 ## Current presentation direction
 

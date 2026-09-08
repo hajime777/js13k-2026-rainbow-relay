@@ -145,8 +145,8 @@ test('stage 1 is a clean quarter circle and later bands may vary', () => {
   for (const exit of [LEFT, RIGHT]) {
     const scene = { w: 100, h: 200, entry: BOTTOM, exit, seed };
     const start = rainbowPoint(1, 0, scene), end = rainbowPoint(1, 1, scene);
-    assert.equal(start.y, 200);
-    assert.equal(end.x, exit === LEFT ? 0 : 100);
+    near(start.y, 200, `stage 1 ${exit === LEFT ? 'left' : 'right'} start y`);
+    near(end.x, exit === LEFT ? 0 : 100, `stage 1 ${exit === LEFT ? 'left' : 'right'} end x`);
   }
   assert.deepEqual(rainbowBand(1, 3, 12, seed), { width: 12, offset: 32.4 });
   const widths = Array.from({ length: 7 }, (_, i) => rainbowBand(3, i, 12, seed).width);

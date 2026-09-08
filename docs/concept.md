@@ -4,11 +4,17 @@
 
 - Pastel visual direction.
 - The starting scene is a cloudy/rainy overcast sky.
-- A completed arc-shaped rainbow and blue sky already exist behind the overcast layer.
+- A completed rainbow and blue sky already exist behind the overcast layer.
 - The player scrubs/rubs the screen to clear the overcast layer locally.
 - Cleared areas reveal the blue sky and hidden rainbow.
+- Foreground clouds also get pushed in the drag direction and scatter while fading; clouds do not collide with each other at this stage.
 - Foreground clouds may remain; the goal is not to delete every cloud.
 - Progress is based on how much of the rainbow has been revealed.
+- A stage clears when 90% of the visible rainbow has been revealed.
+- Stage 1 uses the normal circular rainbow arc.
+- Stage 2 and later procedurally deform the rainbow from the stage number; no per-stage rainbow shape data is stored.
+- Deformation grows over the early stages while staying deterministic for the same stage number.
+- After a clear, the game advances automatically to the next stage.
 
 ## Current presentation direction
 

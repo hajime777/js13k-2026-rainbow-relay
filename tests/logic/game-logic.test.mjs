@@ -9,6 +9,7 @@ const {
   isClearedPercent,
   markRevealPoints,
   rainbowPoint,
+  rainbowBand,
 } = globalThis.RainbowLogic;
 
 test('distancePointToSegment returns perpendicular distance inside the segment', () => {
@@ -105,4 +106,21 @@ test('stage 4 is a horizontal straight rainbow', () => {
 
   assert.ok(b.x > a.x);
   assert.equal(a.y, b.y);
+});
+
+test('stage 1 rainbow bands keep the original width and spacing', () => {
+  assert.deepEqual(rainbowBand(1, 0, 12), { width: 12, offset: 0 });
+  const middle = rainbowBand(1, 3, 12);
+  assert.equal(middle.width, 12);
+  assert.ok(Math.abs(middle.offset - 33.12) < 1e-9);
+});
+
+test('later rainbow bands vary width and spacing deterministically', () => {
+  const a = rainbowBand(5, 2, 12);
+  const b = rainbowBand(5, 2, 12);
+  const c = rainbowBand(5, 3, 12);
+
+  assert.deepEqual(a, b);
+  assert.notEqual(a.width, 12);
+  assert.notEqual(a.offset, c.offset);
 });

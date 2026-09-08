@@ -58,7 +58,8 @@
   }
 
   function worldLength(seed) {
-    return MIN_STAGE + seedMix(seed, 911) % (MAX_STAGE - MIN_STAGE + 1);
+    const r = seedUnit(seed, 911);
+    return MIN_STAGE + Math.floor(r * r * r * (MAX_STAGE - MIN_STAGE + 1));
   }
 
   function oppositeSide(side) {

@@ -7,6 +7,7 @@
     "dev": "vite src --host 0.0.0.0",
     "build": "node tools/build.mjs",
     "size": "node tools/build.mjs",
+    "seed:forge": "node tools/seed-forge.mjs",
     "test:logic": "node --test tests/logic/*.test.mjs",
     "test:setup": "playwright install chromium",
     "test:ui": "playwright test tests/ui",

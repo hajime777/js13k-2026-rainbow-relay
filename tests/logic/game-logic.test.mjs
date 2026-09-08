@@ -28,13 +28,9 @@ test('markRevealPoints does not double count hits', () => {
   assert.equal(markRevealPoints(points, { x: 0, y: 0 }, { x: 10, y: 0 }, 4), 0);
 });
 
-test('the same seed text always hashes to the same world seed', () => {
+test('seed generation is deterministic', () => {
   assert.equal(seedHash('777'), seedHash('777'));
-  assert.equal(seedHash('rainbow'), seedHash('rainbow'));
   assert.notEqual(seedHash('rainbow'), seedHash('unicorn'));
-});
-
-test('seed helpers are deterministic', () => {
   const s = seedHash('shared-seed');
   assert.equal(seedMix(s, 1, 2, 3), seedMix(s, 1, 2, 3));
   assert.equal(seedUnit(s, 4, 5, 6), seedUnit(s, 4, 5, 6));
@@ -67,31 +63,32 @@ test('side helpers still describe neighboring screens', () => {
   assert.deepEqual(routeStep(BOTTOM), { x: 0, y: 1 });
 });
 
-test('stage 1 is a conventional semicircle in either travel direction', () => {
+test('stage 1 is a roughly 90 degree rainbow from the bottom to a seeded side', () => {
   const seed = seedHash('arc');
-  const left = { w: 100, h: 200, entry: LEFT, exit: RIGHT, seed };
-  const right = { w: 100, h: 200, entry: RIGHT, exit: LEFT, seed };
-  const a = rainbowPoint(1, 0, left);
-  const m = rainbowPoint(1, 0.5, left);
-  const z = rainbowPoint(1, 1, left);
-  assert.equal(a.x, 0);
-  assert.equal(z.x, 100);
-  assert.ok(m.y < a.y);
-  assert.equal(rainbowPoint(1, 0, right).x, 100);
-  assert.equal(rainbowPoint(1, 1, right).x, 0);
+  for (const exit of [LEFT, RIGHT]) {
+    const scene = { w: 100, h: 200, entry: oppositeSide(exit), exit, seed };
+    const a = rainbowPoint(1, 0, scene);
+    const m = rainbowPoint(1, 0.5, scene);
+    const z = rainbowPoint(1, 1, scene);
+    assert.equal(a.y, 200);
+    assert.ok(a.x > 0 && a.x < 100);
+    assert.equal(z.x, exit === LEFT ? 0 : 100);
+    assert.ok(z.y < a.y);
+    assert.ok(m.y < a.y);
+  }
 });
 
-test('stage 1 connects exactly to stage 2 at the shared edge', () => {
+test('stage 1 connects exactly to stage 2 at the shared edge for every band', () => {
   const seed = seedHash('295455034');
-  for (const entry of [LEFT, RIGHT]) {
-    const exit = oppositeSide(entry);
+  for (const exit of [LEFT, RIGHT]) {
     const nextEntry = oppositeSide(exit);
-    const first = { w: 100, h: 200, entry, exit, seed };
+    const first = { w: 100, h: 200, entry: oppositeSide(exit), exit, seed };
     const second = { w: 100, h: 200, entry: nextEntry, exit: TOP, seed };
     for (let i = 0; i < 7; i++) {
-      const band = rainbowBand(1, i, 12, seed);
-      const a = rainbowPoint(1, 1, first, band.offset);
-      const b = rainbowPoint(2, 0, second, band.offset);
+      const band1 = rainbowBand(1, i, 12, seed);
+      const band2 = rainbowBand(2, i, 12, seed);
+      const a = rainbowPoint(1, 1, first, band1.offset);
+      const b = rainbowPoint(2, 0, second, band2.offset);
       assert.ok(Math.abs(a.y - b.y) < 1e-9);
       assert.ok(Math.abs((exit === LEFT ? a.x : a.x - 100)) < 1e-9);
       assert.ok(Math.abs((nextEntry === LEFT ? b.x : b.x - 100)) < 1e-9);
@@ -99,11 +96,27 @@ test('stage 1 connects exactly to stage 2 at the shared edge', () => {
   }
 });
 
-test('band profile remains consistent across a seeded world', () => {
+test('stage 1 keeps a clean regular band profile', () => {
+  const seed = seedHash('normal-start');
+  assert.deepEqual(rainbowBand(1, 0, 12, seed), { width: 12, offset: 0 });
+  assert.deepEqual(rainbowBand(1, 3, 12, seed), { width: 12, offset: 32.4 });
+});
+
+test('later seeded color bands have visibly different widths', () => {
   const seed = seedHash('god-seed');
-  for (let i = 0; i < 7; i++) {
-    assert.deepEqual(rainbowBand(2, i, 12, seed), rainbowBand(19, i, 12, seed));
-  }
+  const widths = Array.from({ length: 7 }, (_, i) => rainbowBand(3, i, 12, seed).width);
+  assert.ok(Math.max(...widths) - Math.min(...widths) > 1);
+});
+
+test('later rainbow spreads and twists inside a segment but keeps edge continuity', () => {
+  const seed = seedHash('twist');
+  const scene = { w: 100, h: 200, entry: LEFT, exit: RIGHT, seed };
+  const band = rainbowBand(9, 5, 12, seed);
+  const centerEdge = rainbowPoint(9, 0, scene, band.offset);
+  const centerMid = rainbowPoint(9, 0.37, scene, band.offset);
+  const plainMid = rainbowPoint(9, 0.37, scene, 0);
+  assert.ok(Math.hypot(centerMid.x - plainMid.x, centerMid.y - plainMid.y) > 1);
+  assert.equal(centerEdge.x, 0);
 });
 
 test('the same seed generates the same later rainbow geometry', () => {

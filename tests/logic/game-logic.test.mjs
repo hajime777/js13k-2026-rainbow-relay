@@ -28,9 +28,13 @@ test('markRevealPoints does not double count hits', () => {
   assert.equal(markRevealPoints(points, { x: 0, y: 0 }, { x: 10, y: 0 }, 4), 0);
 });
 
-test('seed generation is deterministic', () => {
+test('the same seed text always hashes to the same world seed', () => {
   assert.equal(seedHash('777'), seedHash('777'));
+  assert.equal(seedHash('rainbow'), seedHash('rainbow'));
   assert.notEqual(seedHash('rainbow'), seedHash('unicorn'));
+});
+
+test('seed helpers are deterministic', () => {
   const s = seedHash('shared-seed');
   assert.equal(seedMix(s, 1, 2, 3), seedMix(s, 1, 2, 3));
   assert.equal(seedUnit(s, 4, 5, 6), seedUnit(s, 4, 5, 6));
@@ -63,7 +67,7 @@ test('side helpers still describe neighboring screens', () => {
   assert.deepEqual(routeStep(BOTTOM), { x: 0, y: 1 });
 });
 
-test('stage 1 is a roughly 90 degree rainbow from the bottom to a seeded side', () => {
+test('stage 1 is a true quarter circle from the bottom into a side edge', () => {
   const seed = seedHash('arc');
   for (const exit of [LEFT, RIGHT]) {
     const scene = { w: 100, h: 200, entry: oppositeSide(exit), exit, seed };
@@ -74,11 +78,12 @@ test('stage 1 is a roughly 90 degree rainbow from the bottom to a seeded side', 
     assert.ok(a.x > 0 && a.x < 100);
     assert.equal(z.x, exit === LEFT ? 0 : 100);
     assert.ok(z.y < a.y);
-    assert.ok(m.y < a.y);
+    assert.ok(m.x >= 0 && m.x <= 100);
+    assert.ok(m.y < 200);
   }
 });
 
-test('stage 1 connects exactly to stage 2 at the shared edge for every band', () => {
+test('stage 1 color bands are concentric and connect to stage 2 exactly', () => {
   const seed = seedHash('295455034');
   for (const exit of [LEFT, RIGHT]) {
     const nextEntry = oppositeSide(exit);
@@ -87,8 +92,10 @@ test('stage 1 connects exactly to stage 2 at the shared edge for every band', ()
     for (let i = 0; i < 7; i++) {
       const band1 = rainbowBand(1, i, 12, seed);
       const band2 = rainbowBand(2, i, 12, seed);
+      const start = rainbowPoint(1, 0, first, band1.offset);
       const a = rainbowPoint(1, 1, first, band1.offset);
       const b = rainbowPoint(2, 0, second, band2.offset);
+      assert.equal(start.y, 200);
       assert.ok(Math.abs(a.y - b.y) < 1e-9);
       assert.ok(Math.abs((exit === LEFT ? a.x : a.x - 100)) < 1e-9);
       assert.ok(Math.abs((nextEntry === LEFT ? b.x : b.x - 100)) < 1e-9);

@@ -8,6 +8,7 @@ const {
   revealPercent,
   isClearedPercent,
   markRevealPoints,
+  rainbowPoint,
 } = globalThis.RainbowLogic;
 
 test('distancePointToSegment returns perpendicular distance inside the segment', () => {
@@ -38,10 +39,10 @@ test('revealPercent is safe when there are no sample points', () => {
   assert.equal(revealPercent(10, 0), 0);
 });
 
-test('clear threshold is 62 percent', () => {
-  assert.equal(CLEAR_PERCENT, 62);
-  assert.equal(isClearedPercent(61), false);
-  assert.equal(isClearedPercent(62), true);
+test('clear threshold is 90 percent', () => {
+  assert.equal(CLEAR_PERCENT, 90);
+  assert.equal(isClearedPercent(89), false);
+  assert.equal(isClearedPercent(90), true);
   assert.equal(isClearedPercent(100), true);
 });
 
@@ -68,4 +69,21 @@ test('markRevealPoints does not count an already revealed point twice', () => {
 
   assert.equal(added, 1);
   assert.deepEqual(points.map((p) => p.hit), [1, 1]);
+});
+
+test('stage 1 rainbowPoint keeps the original circular arc', () => {
+  const rainbow = { cx: 100, cy: 200, base: 80, a0: Math.PI, a1: Math.PI * 2 };
+  const p = rainbowPoint(1, 0.5, rainbow, 10);
+  assert.ok(Math.abs(p.x - 100) < 1e-9);
+  assert.ok(Math.abs(p.y - 130) < 1e-9);
+});
+
+test('later rainbowPoint stages are deterministic and deformed', () => {
+  const rainbow = { cx: 100, cy: 200, base: 80, a0: Math.PI, a1: Math.PI * 2 };
+  const normal = rainbowPoint(1, 0.37, rainbow, 10);
+  const weirdA = rainbowPoint(4, 0.37, rainbow, 10);
+  const weirdB = rainbowPoint(4, 0.37, rainbow, 10);
+
+  assert.deepEqual(weirdA, weirdB);
+  assert.ok(Math.hypot(weirdA.x - normal.x, weirdA.y - normal.y) > 1);
 });

@@ -25,12 +25,13 @@ const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySele
 const cleanCanvas=document.createElement('canvas'),cleanCtx=cleanCanvas.getContext('2d');
 const maskCanvas=document.createElement('canvas'),maskCtx=maskCanvas.getContext('2d');
 const revealCanvas=document.createElement('canvas'),revealCtx=revealCanvas.getContext('2d');
+const fromCanvas=document.createElement('canvas'),fromCtx=fromCanvas.getContext('2d'),toCanvas=document.createElement('canvas'),toCtx=toCanvas.getContext('2d');
 const C=['#f3a4b8','#f6bb91','#f1d97d','#a8d69f','#92cce8','#abaee8','#d4afe4'];
-let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1,mapX=0,mapY=0,entrySide=LEFT,exitSide=BOTTOM,history=[],overview=0;
+let W=0,H=0,D=1,SW=0,CX=0,cropSide=1,clouds=[],rain=[],down=0,last=null,t=0,mouse={x:-99,y:-99},revealed=0,points=[],rainbow=null,cleared=0,stage=1,mapX=0,mapY=0,entrySide=LEFT,exitSide=RIGHT,history=[],overview=0,transition=0,transT=0,transSide=RIGHT;
 const rnd=(a,b)=>a+Math.random()*(b-a);
-function resize(){D=Math.min(1.5,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0);for(const q of [cleanCanvas,maskCanvas,revealCanvas]){q.width=Math.floor(W*D);q.height=Math.floor(H*D)}cleanCtx.setTransform(D,0,0,D,0,0);maskCtx.setTransform(D,0,0,D,0,0);revealCtx.setTransform(D,0,0,D,0,0);overview?drawOverview():startStage()}
-function restartGame(){stage=1;mapX=0;mapY=0;history=[];overview=0;entrySide=Math.random()<.5?LEFT:RIGHT;exitSide=BOTTOM;nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';startStage()}
-function startStage(){clouds=[];rain=[];revealed=0;down=0;last=null;cleared=0;cropSide=Math.random()<.5?-1:1;SW=H*16/9;CX=cropSide<0?0:Math.max(0,SW-W);clearDialog.classList.remove('show');nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';maskCtx.save();maskCtx.setTransform(1,0,0,1,0,0);maskCtx.clearRect(0,0,maskCanvas.width,maskCanvas.height);maskCtx.restore();
+function resize(){D=Math.min(1.5,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0);for(const q of [cleanCanvas,maskCanvas,revealCanvas]){q.width=Math.floor(W*D);q.height=Math.floor(H*D)}for(const q of [fromCanvas,toCanvas]){q.width=c.width;q.height=c.height}cleanCtx.setTransform(D,0,0,D,0,0);maskCtx.setTransform(D,0,0,D,0,0);revealCtx.setTransform(D,0,0,D,0,0);transition=0;overview?drawOverview():startStage()}
+function restartGame(){stage=1;mapX=0;mapY=0;history=[];overview=0;transition=0;transT=0;entrySide=LEFT;exitSide=RIGHT;nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';startStage()}
+function startStage(){clouds=[];rain=[];revealed=0;down=0;last=null;mouse={x:-99,y:-99};cleared=0;cropSide=Math.random()<.5?-1:1;SW=H*16/9;CX=cropSide<0?0:Math.max(0,SW-W);clearDialog.classList.remove('show');nextBtn.style.display='';clearText.textContent='僕が見つけた虹です';maskCtx.save();maskCtx.setTransform(1,0,0,1,0,0);maskCtx.clearRect(0,0,maskCanvas.width,maskCanvas.height);maskCtx.restore();
  const cols=Math.max(6,Math.floor(W/105)),rows=Math.max(5,Math.floor(H/135));
  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let cx=(i+.5)*W/cols+rnd(-45,45),cy=115+(j+.45)*(H*.64-70)/rows+rnd(-28,28),s=rnd(38,64);clouds.push({x:cx,y:cy,s,d:1,p:rnd(0,6.28),vx:0,vy:0});if(Math.random()<.68)clouds.push({x:cx+rnd(-55,55),y:cy+rnd(-20,20),s:s*rnd(.62,.84),d:1,p:rnd(0,6.28),vx:0,vy:0})}
  for(let i=0;i<Math.max(40,W*H/22000);i++)rain.push({x:Math.random()*W,y:Math.random()*H,l:rnd(7,15),v:rnd(110,210)});
@@ -51,7 +52,8 @@ function updateMeter(){let p=revealPercent(revealed,points.length);pct.textConte
  if(isClearedPercent(p)&&!cleared){cleared=1;down=0;last=null;captureStage();clearDialog.classList.add('show')}
 }
 function captureStage(){if(history.length>=stage)return;let bands=[];for(let i=0;i<7;i++){let b=rainbowBand(stage,i,rainbow.band),ps=[];for(let j=0;j<=72;j++){let p=rainbowPoint(stage,j/72,rainbow,b.offset);ps.push([p.x/W,p.y/H])}bands.push({w:b.width/W,p:ps})}history.push({x:mapX,y:mapY,b:bands})}
-function nextStage(){if(stage>=MAX_STAGE){showOverview();return}let s=routeStep(exitSide);mapX+=s.x;mapY+=s.y;entrySide=oppositeSide(exitSide);stage++;exitSide=stage===MAX_STAGE?-1:routeExit(stage,entrySide);startStage()}
+function snapFrame(q,g){g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,q.width,q.height);g.drawImage(c,0,0)}
+function nextStage(){if(stage>=MAX_STAGE){showOverview();return}transSide=exitSide;drawScene();snapFrame(fromCanvas,fromCtx);let s=routeStep(exitSide);mapX+=s.x;mapY+=s.y;entrySide=oppositeSide(exitSide);stage++;exitSide=stage===MAX_STAGE?-1:routeExit(stage,entrySide);startStage();drawScene();snapFrame(toCanvas,toCtx);transition=1;transT=0}
 function showOverview(){overview=1;down=0;last=null;clearText.textContent=MAX_STAGE+'つの空で見つけた虹です';nextBtn.style.display='none';clearDialog.classList.add('show');pct.textContent=MAX_STAGE+'/'+MAX_STAGE;fill.style.width='100%';drawOverview()}
 function drawCleanScene(g){let sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#9fd8f4');sky.addColorStop(.58,'#c8eafd');sky.addColorStop(1,'#ecf7ff');g.fillStyle=sky;g.fillRect(0,0,W,H);
  let sx=SW*.82-CX,sy=H*.18,rg=g.createRadialGradient(sx,sy,0,sx,sy,150);rg.addColorStop(0,'rgba(255,249,206,.72)');rg.addColorStop(1,'rgba(255,249,206,0)');g.fillStyle=rg;g.beginPath();g.arc(sx,sy,150,0,7);g.fill();
@@ -69,10 +71,12 @@ function drawClouds(){for(const q of clouds){let ox=Math.sin(t*.55+q.p)*2,oy=Mat
 function prepareStaticScene(){cleanCtx.clearRect(0,0,W,H);drawCleanScene(cleanCtx)}
 function rebuildReveal(){revealCtx.clearRect(0,0,W,H);revealCtx.globalCompositeOperation='source-over';revealCtx.drawImage(cleanCanvas,0,0,W,H);revealCtx.globalCompositeOperation='destination-in';revealCtx.drawImage(maskCanvas,0,0,W,H);revealCtx.globalCompositeOperation='source-over'}
 function cursor(){if(mouse.x<0||overview)return;x.save();x.strokeStyle='rgba(255,255,255,.72)';x.lineWidth=2;x.setLineDash([4,5]);x.beginPath();x.arc(mouse.x,mouse.y,28,0,7);x.stroke();x.restore()}
-function update(dt){if(overview)return;t+=dt;let damp=Math.pow(.1,dt);for(const q of clouds){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=damp;q.vy*=damp}for(const r of rain){r.y+=r.v*dt;r.x-=15*dt;if(r.y>H+20){r.y=rnd(-100,-10);r.x=Math.random()*W}}}
-function draw(){if(overview){drawOverview();return}drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H);drawClouds();cursor()}
+function update(dt){if(overview)return;if(transition){transT=Math.min(1,transT+dt/.5);if(transT>=1)transition=0;return}t+=dt;let damp=Math.pow(.1,dt);for(const q of clouds){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=damp;q.vy*=damp}for(const r of rain){r.y+=r.v*dt;r.x-=15*dt;if(r.y>H+20){r.y=rnd(-100,-10);r.x=Math.random()*W}}}
+function drawScene(){drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H);drawClouds();cursor()}
+function drawTransition(){let p=1-Math.pow(1-transT,3),s=routeStep(transSide),ox=-s.x*W*p,oy=-s.y*H*p;x.clearRect(0,0,W,H);x.drawImage(fromCanvas,ox,oy,W,H);x.drawImage(toCanvas,ox+s.x*W,oy+s.y*H,W,H)}
+function draw(){if(overview){drawOverview();return}if(transition){drawTransition();return}drawScene()}
 let prev=performance.now();function loop(n){let dt=Math.min(.033,(n-prev)/1000);prev=n;update(dt);draw();requestAnimationFrame(loop)}
-c.addEventListener('pointerdown',e=>{if(cleared||overview)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=restartGame;nextBtn.onclick=nextStage;addEventListener('resize',resize);resize();restartGame();requestAnimationFrame(loop);
+c.addEventListener('pointerdown',e=>{if(cleared||overview||transition)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=restartGame;nextBtn.onclick=nextStage;addEventListener('resize',resize);resize();restartGame();requestAnimationFrame(loop);
 })();
 </script>
 </body>

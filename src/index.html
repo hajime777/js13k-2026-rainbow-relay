@@ -44,14 +44,14 @@ function buildRainbowPoints(){points=[];rainbow={w:W,h:H,entry:entrySide,exit:ex
  for(let i=0;i<count;i++){let u=i/(count-1),p=rainbowPoint(stage,u,rainbow,mid.offset);if(p.x>=0&&p.x<=W&&p.y>=0&&p.y<=H)points.push({x:p.x,y:p.y,hit:0})}
 }
 function point(e){let r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function scrub(a,b){if(cleared||overview)return;let dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<1)return;let nx=dx/L,ny=dy/L;
+function scrub(a,b){if(overview||transition)return;let dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<1)return;let nx=dx/L,ny=dy/L;
  maskCtx.save();maskCtx.lineCap='round';maskCtx.lineJoin='round';
  maskCtx.strokeStyle='rgba(255,255,255,.20)';maskCtx.lineWidth=98;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='rgba(255,255,255,.62)';maskCtx.lineWidth=78;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();
  maskCtx.strokeStyle='#fff';maskCtx.lineWidth=54;maskCtx.beginPath();maskCtx.moveTo(a.x,a.y);maskCtx.lineTo(b.x,b.y);maskCtx.stroke();maskCtx.restore();
  for(const q of clouds){let d=distancePointToSegment(q.x,q.y,a,b),r=q.s+44;if(d<r){let f=1-d/r,push=Math.min(190,55+L*5)*f;q.d=Math.max(.18,q.d-(.02+f*.05));q.vx=Math.max(-260,Math.min(260,q.vx+nx*push));q.vy=Math.max(-260,Math.min(260,q.vy+ny*push))}}
  revealed+=markRevealPoints(points,a,b,52);rebuildReveal();updateMeter()}
-function updateMeter(){let p=revealPercent(revealed,points.length);pct.textContent=p+'%';fill.style.width=p+'%';if(isClearedPercent(p)&&!cleared){cleared=1;down=0;last=null;captureStage();clearDialog.classList.add('show')}}
+function updateMeter(){let p=revealPercent(revealed,points.length);pct.textContent=p+'%';fill.style.width=p+'%';if(isClearedPercent(p)&&!cleared){cleared=1;captureStage();clearDialog.classList.add('show')}}
 function captureStage(){if(history.length>=stage)return;let bands=[];for(let i=0;i<7;i++){let b=rainbowBand(stage,i,rainbow.band,worldSeed),ps=[];for(let j=0;j<=72;j++){let p=rainbowPoint(stage,j/72,rainbow,b.offset);ps.push([p.x/W,p.y/H])}bands.push({w:b.width/W,p:ps})}history.push({x:mapX,y:mapY,b:bands})}
 function snapFrame(q,g){g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,q.width,q.height);g.drawImage(c,0,0)}
 function nextStage(){if(stage>=maxStage){showOverview();return}transSide=exitSide;drawScene();snapFrame(fromCanvas,fromCtx);let s=routeStep(exitSide);mapX+=s.x;mapY+=s.y;entrySide=oppositeSide(exitSide);stage++;exitSide=stage===maxStage?-1:routeExit(worldSeed,stage,entrySide,mapX,mapY);startStage();drawScene();snapFrame(toCanvas,toCtx);transition=1;transT=0}
@@ -77,7 +77,7 @@ function drawScene(){drawDirtyBase();drawRain();x.drawImage(revealCanvas,0,0,W,H
 function drawTransition(){let p=1-Math.pow(1-transT,3),s=routeStep(transSide),ox=-s.x*W*p,oy=-s.y*H*p;x.clearRect(0,0,W,H);x.drawImage(fromCanvas,ox,oy,W,H);x.drawImage(toCanvas,ox+s.x*W,oy+s.y*H,W,H)}
 function draw(){if(overview){drawOverview();return}if(transition){drawTransition();return}drawScene()}
 let prev=performance.now();function loop(n){let dt=Math.min(.033,(n-prev)/1000);prev=n;update(dt);draw();requestAnimationFrame(loop)}
-c.addEventListener('pointerdown',e=>{if(cleared||overview||transition)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=restartGame;nextBtn.onclick=nextStage;document.querySelector('#seedGo').onclick=()=>applySeed(seedInput.value);seedInput.addEventListener('keydown',e=>{if(e.key==='Enter')applySeed(seedInput.value)});addEventListener('resize',resize);seedInput.value=freshSeed();worldSeed=seedHash(seedInput.value);seedText=seedInput.value;maxStage=worldLength(worldSeed);resize();restartGame();requestAnimationFrame(loop);
+c.addEventListener('pointerdown',e=>{if(overview||transition)return;down=1;last=point(e);mouse=last;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{mouse=point(e);if(!down)return;let p=mouse;scrub(last,p);last=p});function up(e){down=0;last=null;try{c.releasePointerCapture(e.pointerId)}catch{}}c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);c.addEventListener('pointerleave',()=>mouse={x:-99,y:-99});document.querySelector('#reset').onclick=restartGame;nextBtn.onclick=nextStage;document.querySelector('#seedGo').onclick=()=>applySeed(seedInput.value);seedInput.addEventListener('keydown',e=>{if(e.key==='Enter')applySeed(seedInput.value)});addEventListener('resize',resize);seedInput.value=freshSeed();worldSeed=seedHash(seedInput.value);seedText=seedInput.value;maxStage=worldLength(worldSeed);resize();restartGame();requestAnimationFrame(loop);
 })();
 </script>
 </body>

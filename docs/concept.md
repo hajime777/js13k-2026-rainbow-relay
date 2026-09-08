@@ -14,8 +14,8 @@
 ## Rainbow trail prototype
 
 - The current test run is **8 stages**. A later full version may extend this to around 16 stages.
-- Stage 1 starts from either the left or right edge and curves downward toward the bottom edge.
-- Each cleared segment leads into the neighboring logical screen at the segment's outgoing edge.
+- Stage 1 is a conventional semicircular rainbow spanning from the left edge to the right edge, so the first reveal reads immediately as a normal rainbow.
+- Each cleared segment leads into the neighboring logical screen at the segment's outgoing edge. Pressing **OK** plays a short directional screen-scroll transition so it feels like the view follows the rainbow into that neighboring cloudy sky.
 - The next screen starts cloudy again, so the player repeatedly follows the hidden continuation of one long rainbow.
 - Later segments can turn, double back, revisit a previous logical screen, or overlap. Geometric contradictions are acceptable; the intended feeling is closer to following a snake than navigating a physically strict world.
 - The route is generated deterministically from the stage number and entry direction rather than stored as per-stage route data.

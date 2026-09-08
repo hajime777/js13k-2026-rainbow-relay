@@ -13,13 +13,14 @@
 
 ## Seeded rainbow worlds
 
-- The game now treats a run as a finite **seeded rainbow world**, closer to Minecraft-style world generation than a fixed stage list.
+- The game treats a run as a finite **seeded rainbow world**, closer to Minecraft-style world generation than a fixed stage list.
 - A random seed is created on first load and shown in a compact Seed input at the bottom.
 - The player can replace the seed and press **Go** (or Enter) to regenerate the world.
 - Seed text is hashed to a deterministic 32-bit world seed. The same seed text therefore produces the same rainbow world on different clients.
-- The world length is also seed-derived and always finite: **minimum 4 screens, maximum 32 screens**.
-- Stage 1 remains a conventional semicircular rainbow so the first reveal immediately reads as a normal rainbow. The seed determines whether it is traversed left-to-right or right-to-left.
-- Later route direction, edge positions, curve bends/wiggles, rainbow band widths, and band spacing are derived from the world seed instead of `Math.random()` or per-stage data.
+- The world length is seed-derived and always finite: **minimum 4 screens, maximum 32 screens**.
+- Stage 1 is intentionally more recognizable as a rainbow: it rises from the bottom of the portrait screen and turns about 90 degrees toward either the left or right edge. The seed decides which side it exits.
+- Stage 1 keeps regular, even color bands so the first reveal reads immediately as a conventional rainbow.
+- Later route direction, edge positions, curve bends/wiggles, and band character are derived from the world seed instead of `Math.random()` or per-stage authored data.
 - Initial cloud/rain placement is also seeded for the same stage/world position, while the core compatibility promise is specifically that the same seed produces the same rainbow world.
 - Branching is not implemented yet. The generator is structured around a world seed and logical coordinates so branching can be added later without replacing the seed model.
 
@@ -27,10 +28,12 @@
 
 - Each cleared segment leads into the neighboring logical screen at the segment's outgoing edge.
 - Pressing **OK** plays a short directional screen-scroll transition so it feels like the view follows the rainbow into that neighboring cloudy sky.
-- Shared segment boundaries must line up exactly. The first normal semicircle and Stage 2 now use the same seeded boundary anchor, and rainbow band offsets are aligned at screen edges so the overview does not show a detached first rainbow.
-- The seeded route is intentionally more river-like than the first generator: about 70% of route decisions continue forward, the rest turn left/right, and an immediate reversal through the same edge is not generated.
-- Later curves keep only a mild seeded wiggle. Edge positions stay closer to the middle of each screen, and rainbow width/spacing variation is subtle and consistent across the whole seeded world rather than changing strongly per stage.
-- Longer loops, revisits, overlaps, and crossings can still happen. Geometric contradictions remain acceptable, but the default shape should read as one continuous rainbow rather than a dense knot.
+- Shared segment boundaries must line up exactly. The first 90-degree arc and Stage 2 use the same edge anchor, and color-band offsets return to their base positions at screen boundaries.
+- The seeded route is intentionally river-like: about 70% of route decisions continue forward, the rest turn left/right, and an immediate reversal through the same edge is not generated.
+- Later curves keep only a mild seeded wiggle. Edge positions stay closer to the middle of each screen so the whole trail reads as one continuous rainbow rather than a dense knot.
+- Later rainbow segments have more character than Stage 1: color bands can have different widths, and the band spacing gently expands/contracts and shifts through the middle of a segment, creating subtle thickness changes and a mild twisted impression.
+- Those thickness/twist changes fade back to the common boundary profile near screen edges so adjacent screens still connect cleanly.
+- Longer loops, revisits, overlaps, and crossings can still happen. Geometric contradictions remain acceptable.
 - The final generated segment does not continue through another screen edge. Its rainbow ends inside the screen.
 
 ## Final overview
@@ -70,6 +73,7 @@
 
 - What distribution of 4-32 screen world lengths feels best?
 - How often should a seeded world branch once branching is added?
+- How strong should the thickness/twist variation become before it stops looking like a rainbow?
 - What makes a "god seed" interesting enough to share?
 - How should the final overview frame the unicorn reveal?
 - What exactly should online presence affect?

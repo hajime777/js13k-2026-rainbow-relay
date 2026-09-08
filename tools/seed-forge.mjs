@@ -1,8 +1,8 @@
 import '../src/logic.js';
 
 const {
-  seedFromGenes, seedGenes, worldLength, seedUnit,
-  routeExit, routeStep, oppositeSide, rainbowPoint,
+  seedFromGenes, seedGenes, worldLength,
+  firstExit, routeExit, routeStep, oppositeSide, rainbowPoint,
   LEFT, RIGHT, BOTTOM,
 } = globalThis.RainbowLogic;
 
@@ -49,7 +49,7 @@ const target = {
 function trace(seed) {
   const count = worldLength(seed), stages = [];
   let x = 0, y = 0, entry = BOTTOM;
-  let exit = seedUnit(seed, 0, 1) < .5 ? LEFT : RIGHT;
+  let exit = firstExit(seed);
   let turns = 0, revisits = 0;
   const seen = new Set(['0,0']);
   for (let stage = 1; stage <= count; stage++) {

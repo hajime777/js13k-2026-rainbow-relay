@@ -27,7 +27,10 @@
 
 - Each cleared segment leads into the neighboring logical screen at the segment's outgoing edge.
 - Pressing **OK** plays a short directional screen-scroll transition so it feels like the view follows the rainbow into that neighboring cloudy sky.
-- Later segments can turn, double back, revisit a previous logical screen, or overlap. Geometric contradictions are acceptable; the intended feeling is closer to following a snake/river than navigating a physically strict world.
+- Shared segment boundaries must line up exactly. The first normal semicircle and Stage 2 now use the same seeded boundary anchor, and rainbow band offsets are aligned at screen edges so the overview does not show a detached first rainbow.
+- The seeded route is intentionally more river-like than the first generator: about 70% of route decisions continue forward, the rest turn left/right, and an immediate reversal through the same edge is not generated.
+- Later curves keep only a mild seeded wiggle. Edge positions stay closer to the middle of each screen, and rainbow width/spacing variation is subtle and consistent across the whole seeded world rather than changing strongly per stage.
+- Longer loops, revisits, overlaps, and crossings can still happen. Geometric contradictions remain acceptable, but the default shape should read as one continuous rainbow rather than a dense knot.
 - The final generated segment does not continue through another screen edge. Its rainbow ends inside the screen.
 
 ## Final overview

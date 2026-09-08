@@ -4,37 +4,47 @@
 
 - Pastel visual direction.
 - The starting scene is a cloudy/rainy overcast sky.
-- A completed rainbow and blue sky already exist behind the overcast layer.
-- The player scrubs/rubs the screen to clear the overcast layer locally.
-- Cleared areas reveal the blue sky and hidden rainbow.
+- The player scrubs/rubs the screen to reveal the blue sky and hidden rainbow.
 - Foreground clouds also get pushed in the drag direction and scatter while fading; clouds do not collide with each other at this stage.
-- Foreground clouds may remain; the goal is not to delete every cloud.
-- Progress is based on how much of the rainbow has been revealed.
-- A stage clears when 90% of the visible rainbow has been revealed.
-- Stage 1 uses the normal circular rainbow arc with the original band balance.
-- Stage 2 and later generate increasingly unusual rainbow paths procedurally from the stage number; no per-stage rainbow shape data is stored.
-- Early variants include a warped arc, an inverted arc, a horizontal straight rainbow, an S-like wave, a diagonal wave, and a sideways arc. The shape families repeat with stage-dependent variation.
-- Stage 2 and later also vary rainbow band thickness and spacing procedurally; no per-stage band layout data is stored.
-- After a clear, the completed sky remains visible with a small bottom confirmation reading `僕が見つけた虹です`. The next stage starts only after the player presses `OK`.
-- Restart always returns the game to Stage 1 rather than restarting the current stage.
+- Progress is based on how much of the current rainbow segment has been revealed.
+- A stage clears when 90% of the visible rainbow segment has been revealed.
+- Clearing does not advance automatically. The player can pause on the cleared screen, then press **OK** to follow the rainbow onward.
+- **Restart** always returns to Stage 1.
+
+## Rainbow trail prototype
+
+- The current test run is **8 stages**. A later full version may extend this to around 16 stages.
+- Stage 1 starts from either the left or right edge and curves downward toward the bottom edge.
+- Each cleared segment leads into the neighboring logical screen at the segment's outgoing edge.
+- The next screen starts cloudy again, so the player repeatedly follows the hidden continuation of one long rainbow.
+- Later segments can turn, double back, revisit a previous logical screen, or overlap. Geometric contradictions are acceptable; the intended feeling is closer to following a snake than navigating a physically strict world.
+- The route is generated deterministically from the stage number and entry direction rather than stored as per-stage route data.
+- Rainbow band width and spacing vary procedurally across later stages.
+- The final stage does not continue through another screen edge. Its rainbow ends inside the screen.
+
+## Final overview
+
+- When Stage 8 is cleared, pressing **OK** shows an overview of the whole rainbow trail.
+- The overview is reconstructed from the actual rainbow geometry recorded from the stages the player cleared, rather than drawing a separate pre-authored "final rainbow."
+- For each cleared stage, the runtime records its logical map position plus the generated band paths, widths, and spacing.
+- Revisited logical screens are intentionally overlaid, so the final trail can cross or contradict itself.
+- No screenshots or image files are stored for this reconstruction; only lightweight runtime geometry is kept.
+- The overview is intended to create the reveal: "So this is the rainbow I followed."
 
 ## Current presentation direction
 
 - The playable view is portrait, including on desktop/Windows.
 - The portrait playfield uses a 9:16 frame and is centered inside wider desktop browser windows.
-- The underlying sky composition is still treated like the previous 16:9 landscape scene and then cropped into the portrait frame.
-- The rainbow keeps the same scale it had in the landscape composition instead of shrinking to fit the portrait width.
-- The crop shows either the left or right side of that wider composition, so part of the rainbow naturally continues off-screen.
-- Foreground clouds are denser and use more rounded lobes for a fluffier silhouette, while preserving the existing colors, transparency, gradients, and overall visual style.
-- The top UI is intentionally minimal and shows only the title.
+- The upper HUD contains only the title.
 - Reveal progress is a compact bar at the bottom.
-- The clear confirmation is also kept at the bottom so the revealed rainbow remains easy to view or capture with an external screenshot tool; the game itself does not provide screenshot functionality.
+- At clear, a compact lower dialog says **「僕が見つけた虹です」**. The player presses **OK** when ready to continue, leaving time to take an OS-level screenshot if desired.
+- There is no built-in screenshot feature.
+- The existing pastel sky, clouds, rain, transparency, gradients, and overall visual direction remain the base presentation.
 
 ## Later direction under consideration
 
-- The playable sky may expand as the game progresses and become harder to clear.
-- A night transition may reveal a unicorn constellation.
-- The size or richness of the constellation may reflect accumulated activity.
+- Expand the test from 8 stages toward roughly 16 if the trail/overview loop is fun enough.
+- A night transition may reveal a unicorn beyond the rainbow / at the end of the trail.
 - Online behavior is intentionally undecided. It does not have to be versus or co-op. A preferred direction is an indirect or surprising use where the player thinks: "Wait, THAT is the online part?"
 
 ## Important constraint
@@ -45,7 +55,7 @@ The base game must be playable and completable with no network connection. Any o
 
 ## Open questions
 
-- What makes repeated play genuinely fun rather than only visually pleasant?
-- How should difficulty increase as the sky/world expands?
+- Is following one rainbow across multiple cloudy screens fun enough to sustain 8 stages? 16?
+- How much procedural variation should happen before the rainbow stops reading as one continuous object?
+- How should the final overview frame the unicorn reveal?
 - What exactly should online presence affect?
-- When and how should the unicorn constellation appear?

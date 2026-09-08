@@ -78,12 +78,31 @@ test('stage 1 rainbowPoint keeps the original circular arc', () => {
   assert.ok(Math.abs(p.y - 130) < 1e-9);
 });
 
-test('later rainbowPoint stages are deterministic and deformed', () => {
+test('stage 2 is deterministic and deformed', () => {
   const rainbow = { cx: 100, cy: 200, base: 80, a0: Math.PI, a1: Math.PI * 2 };
   const normal = rainbowPoint(1, 0.37, rainbow, 10);
-  const weirdA = rainbowPoint(4, 0.37, rainbow, 10);
-  const weirdB = rainbowPoint(4, 0.37, rainbow, 10);
+  const weirdA = rainbowPoint(2, 0.37, rainbow, 10);
+  const weirdB = rainbowPoint(2, 0.37, rainbow, 10);
 
   assert.deepEqual(weirdA, weirdB);
-  assert.ok(Math.hypot(weirdA.x - normal.x, weirdA.y - normal.y) > 1);
+  assert.ok(Math.hypot(weirdA.x - normal.x, weirdA.y - normal.y) > 0.5);
+});
+
+test('stage 3 is an inverted arc', () => {
+  const rainbow = { cx: 100, cy: 200, base: 80, a0: Math.PI, a1: Math.PI * 2 };
+  const left = rainbowPoint(3, 0, rainbow, 10);
+  const middle = rainbowPoint(3, 0.5, rainbow, 10);
+  const right = rainbowPoint(3, 1, rainbow, 10);
+
+  assert.ok(middle.y > left.y);
+  assert.ok(middle.y > right.y);
+});
+
+test('stage 4 is a horizontal straight rainbow', () => {
+  const rainbow = { cx: 100, cy: 200, base: 80, a0: Math.PI, a1: Math.PI * 2 };
+  const a = rainbowPoint(4, 0.1, rainbow, 10);
+  const b = rainbowPoint(4, 0.9, rainbow, 10);
+
+  assert.ok(b.x > a.x);
+  assert.equal(a.y, b.y);
 });

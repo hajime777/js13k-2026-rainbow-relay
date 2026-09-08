@@ -49,11 +49,15 @@ test('seed worlds always end between 4 and 32 screens', () => {
   }
 });
 
-test('route generation is deterministic for a seed and coordinate', () => {
-  const s = seedHash('route');
-  const a = routeExit(s, 7, LEFT, 2, -3);
-  assert.equal(a, routeExit(s, 7, LEFT, 2, -3));
-  assert.ok(a >= LEFT && a <= BOTTOM);
+test('route generation is deterministic and never immediately reverses', () => {
+  for (let i = 0; i < 100; i++) {
+    const s = seedHash(String(i));
+    for (let entry = LEFT; entry <= BOTTOM; entry++) {
+      const a = routeExit(s, 7, entry, 2, -3);
+      assert.equal(a, routeExit(s, 7, entry, 2, -3));
+      assert.notEqual(a, entry);
+    }
+  }
 });
 
 test('side helpers still describe neighboring screens', () => {
@@ -77,11 +81,35 @@ test('stage 1 is a conventional semicircle in either travel direction', () => {
   assert.equal(rainbowPoint(1, 1, right).x, 0);
 });
 
-test('the same seed generates the same later rainbow geometry and bands', () => {
+test('stage 1 connects exactly to stage 2 at the shared edge', () => {
+  const seed = seedHash('295455034');
+  for (const entry of [LEFT, RIGHT]) {
+    const exit = oppositeSide(entry);
+    const nextEntry = oppositeSide(exit);
+    const first = { w: 100, h: 200, entry, exit, seed };
+    const second = { w: 100, h: 200, entry: nextEntry, exit: TOP, seed };
+    for (let i = 0; i < 7; i++) {
+      const band = rainbowBand(1, i, 12, seed);
+      const a = rainbowPoint(1, 1, first, band.offset);
+      const b = rainbowPoint(2, 0, second, band.offset);
+      assert.ok(Math.abs(a.y - b.y) < 1e-9);
+      assert.ok(Math.abs((exit === LEFT ? a.x : a.x - 100)) < 1e-9);
+      assert.ok(Math.abs((nextEntry === LEFT ? b.x : b.x - 100)) < 1e-9);
+    }
+  }
+});
+
+test('band profile remains consistent across a seeded world', () => {
+  const seed = seedHash('god-seed');
+  for (let i = 0; i < 7; i++) {
+    assert.deepEqual(rainbowBand(2, i, 12, seed), rainbowBand(19, i, 12, seed));
+  }
+});
+
+test('the same seed generates the same later rainbow geometry', () => {
   const seed = seedHash('god-seed');
   const scene = { w: 100, h: 200, entry: TOP, exit: RIGHT, seed };
   assert.deepEqual(rainbowPoint(5, 0.37, scene, 9), rainbowPoint(5, 0.37, scene, 9));
-  assert.deepEqual(rainbowBand(5, 3, 12, seed), rainbowBand(5, 3, 12, seed));
 });
 
 test('different seeds can produce different later rainbow geometry', () => {

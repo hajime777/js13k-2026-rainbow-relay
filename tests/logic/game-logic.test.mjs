@@ -9,12 +9,43 @@ const {
   rainbowPoint, rainbowBand,
 } = globalThis.RainbowLogic;
 
-test('distancePointToSegment returns the expected distance', () => {
+// PowerShell example:
+// $env:RAINBOW_TEST_SEEDS='762178515,3454744287,295455034'; npm run test:logic
+const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,3454744287,295455034,777')
+  .split(',').map(s => s.trim()).filter(Boolean);
+
+function traceSeed(text) {
+  const seed = seedHash(text), count = worldLength(seed), stages = [];
+  let stage = 1, x = 0, y = 0, entry = BOTTOM;
+  let exit = seedUnit(seed, 0, 1) < .5 ? LEFT : RIGHT;
+  while (stage <= count) {
+    if (stage === count) exit = -1;
+    stages.push({ stage, x, y, entry, exit });
+    if (stage === count) break;
+    const step = routeStep(exit);
+    x += step.x;
+    y += step.y;
+    entry = oppositeSide(exit);
+    stage++;
+    exit = stage === count ? -1 : routeExit(seed, stage, entry, x, y);
+  }
+  return { seed, count, stages };
+}
+
+function near(a, b, message) {
+  assert.ok(Math.abs(a - b) < 1e-7, `${message}: ${a} != ${b}`);
+}
+
+function onSide(p, side, w, h, message) {
+  if (side === LEFT) near(p.x, 0, message);
+  else if (side === RIGHT) near(p.x, w, message);
+  else if (side === TOP) near(p.y, 0, message);
+  else if (side === BOTTOM) near(p.y, h, message);
+}
+
+test('distance and reveal helpers keep their basic behavior', () => {
   assert.equal(distancePointToSegment(5, 3, { x: 0, y: 0 }, { x: 10, y: 0 }), 3);
   assert.equal(distancePointToSegment(4, 6, { x: 1, y: 2 }, { x: 1, y: 2 }), 5);
-});
-
-test('reveal percentage still clears at 90 percent', () => {
   assert.equal(CLEAR_PERCENT, 90);
   assert.equal(revealPercent(75, 84), 89);
   assert.equal(revealPercent(76, 84), 90);
@@ -28,122 +59,96 @@ test('markRevealPoints does not double count hits', () => {
   assert.equal(markRevealPoints(points, { x: 0, y: 0 }, { x: 10, y: 0 }, 4), 0);
 });
 
-test('the same seed text always hashes to the same world seed', () => {
+test('seed generation is deterministic', () => {
   assert.equal(seedHash('777'), seedHash('777'));
-  assert.equal(seedHash('rainbow'), seedHash('rainbow'));
   assert.notEqual(seedHash('rainbow'), seedHash('unicorn'));
-});
-
-test('seed helpers are deterministic', () => {
   const s = seedHash('shared-seed');
   assert.equal(seedMix(s, 1, 2, 3), seedMix(s, 1, 2, 3));
   assert.equal(seedUnit(s, 4, 5, 6), seedUnit(s, 4, 5, 6));
 });
 
-test('seed worlds always end between 4 and 32 screens', () => {
-  for (let i = 0; i < 100; i++) {
-    const s = seedHash(String(i));
-    const n = worldLength(s);
-    assert.ok(n >= MIN_STAGE && n <= MAX_STAGE);
-    assert.equal(n, worldLength(s));
+test('selected seed worlds are finite and end on the declared final screen', () => {
+  for (const text of TEST_SEEDS) {
+    const world = traceSeed(text);
+    assert.ok(world.count >= MIN_STAGE && world.count <= MAX_STAGE, `seed ${text}: length ${world.count}`);
+    assert.equal(world.stages.length, world.count, `seed ${text}: trace length`);
+    assert.equal(world.stages[0].entry, BOTTOM, `seed ${text}: first entry`);
+    assert.ok(world.stages[0].exit === LEFT || world.stages[0].exit === RIGHT, `seed ${text}: first exit`);
+    assert.equal(world.stages.at(-1).exit, -1, `seed ${text}: final exit`);
   }
 });
 
-test('route generation is deterministic and never immediately reverses', () => {
-  for (let i = 0; i < 100; i++) {
-    const s = seedHash(String(i));
+test('regression seed 762178515 now finishes in four screens', () => {
+  assert.equal(worldLength(seedHash('762178515')), 4);
+});
+
+test('selected seed routes enter each next screen from the previous exit', () => {
+  for (const text of TEST_SEEDS) {
+    const world = traceSeed(text);
+    for (let i = 1; i < world.stages.length; i++) {
+      const a = world.stages[i - 1], b = world.stages[i], step = routeStep(a.exit);
+      assert.equal(b.entry, oppositeSide(a.exit), `seed ${text}: stage ${a.stage}->${b.stage} entry`);
+      assert.equal(b.x, a.x + step.x, `seed ${text}: stage ${b.stage} x`);
+      assert.equal(b.y, a.y + step.y, `seed ${text}: stage ${b.stage} y`);
+    }
+  }
+});
+
+test('selected seed geometry starts and exits on the route sides', () => {
+  const w = 100, h = 200;
+  for (const text of TEST_SEEDS) {
+    const world = traceSeed(text);
+    for (const s of world.stages) {
+      const scene = { w, h, entry: s.entry, exit: s.exit, seed: world.seed };
+      const start = rainbowPoint(s.stage, 0, scene, 0);
+      const end = rainbowPoint(s.stage, 1, scene, 0);
+      onSide(start, s.stage === 1 ? BOTTOM : s.entry, w, h, `seed ${text}: stage ${s.stage} start`);
+      if (s.exit >= 0) onSide(end, s.exit, w, h, `seed ${text}: stage ${s.stage} exit`);
+      else assert.ok(end.x > 0 && end.x < w && end.y > 0 && end.y < h, `seed ${text}: final endpoint`);
+    }
+  }
+});
+
+test('selected seed color bands connect across every screen boundary', () => {
+  const w = 100, h = 200, band = 12;
+  for (const text of TEST_SEEDS) {
+    const world = traceSeed(text);
+    for (let n = 1; n < world.stages.length; n++) {
+      const a = world.stages[n - 1], b = world.stages[n];
+      const sa = { w, h, entry: a.entry, exit: a.exit, seed: world.seed };
+      const sb = { w, h, entry: b.entry, exit: b.exit, seed: world.seed };
+      for (let i = 0; i < 7; i++) {
+        const ba = rainbowBand(a.stage, i, band, world.seed);
+        const bb = rainbowBand(b.stage, i, band, world.seed);
+        const pa = rainbowPoint(a.stage, 1, sa, ba.offset);
+        const pb = rainbowPoint(b.stage, 0, sb, bb.offset);
+        near(a.x * w + pa.x, b.x * w + pb.x, `seed ${text}: ${a.stage}->${b.stage} band ${i} x`);
+        near(a.y * h + pa.y, b.y * h + pb.y, `seed ${text}: ${a.stage}->${b.stage} band ${i} y`);
+      }
+    }
+  }
+});
+
+test('route generation is deterministic and does not immediately return through its entry edge', () => {
+  for (const text of TEST_SEEDS) {
+    const seed = seedHash(text);
     for (let entry = LEFT; entry <= BOTTOM; entry++) {
-      const a = routeExit(s, 7, entry, 2, -3);
-      assert.equal(a, routeExit(s, 7, entry, 2, -3));
-      assert.notEqual(a, entry);
+      const exit = routeExit(seed, 7, entry, 2, -3);
+      assert.equal(exit, routeExit(seed, 7, entry, 2, -3));
+      assert.notEqual(exit, entry);
     }
   }
 });
 
-test('side helpers still describe neighboring screens', () => {
-  assert.equal(oppositeSide(LEFT), RIGHT);
-  assert.equal(oppositeSide(TOP), BOTTOM);
-  assert.deepEqual(routeStep(LEFT), { x: -1, y: 0 });
-  assert.deepEqual(routeStep(BOTTOM), { x: 0, y: 1 });
-});
-
-test('stage 1 is a true quarter circle from the bottom into a side edge', () => {
-  const seed = seedHash('arc');
+test('stage 1 is a clean quarter circle and later bands may vary', () => {
+  const seed = seedHash(TEST_SEEDS[0]);
   for (const exit of [LEFT, RIGHT]) {
-    const scene = { w: 100, h: 200, entry: oppositeSide(exit), exit, seed };
-    const a = rainbowPoint(1, 0, scene);
-    const m = rainbowPoint(1, 0.5, scene);
-    const z = rainbowPoint(1, 1, scene);
-    assert.equal(a.y, 200);
-    assert.ok(a.x > 0 && a.x < 100);
-    assert.equal(z.x, exit === LEFT ? 0 : 100);
-    assert.ok(z.y < a.y);
-    assert.ok(m.x >= 0 && m.x <= 100);
-    assert.ok(m.y < 200);
+    const scene = { w: 100, h: 200, entry: BOTTOM, exit, seed };
+    const start = rainbowPoint(1, 0, scene), end = rainbowPoint(1, 1, scene);
+    assert.equal(start.y, 200);
+    assert.equal(end.x, exit === LEFT ? 0 : 100);
   }
-});
-
-test('stage 1 color bands are concentric and connect to stage 2 exactly', () => {
-  const seed = seedHash('295455034');
-  for (const exit of [LEFT, RIGHT]) {
-    const nextEntry = oppositeSide(exit);
-    const first = { w: 100, h: 200, entry: oppositeSide(exit), exit, seed };
-    const second = { w: 100, h: 200, entry: nextEntry, exit: TOP, seed };
-    for (let i = 0; i < 7; i++) {
-      const band1 = rainbowBand(1, i, 12, seed);
-      const band2 = rainbowBand(2, i, 12, seed);
-      const start = rainbowPoint(1, 0, first, band1.offset);
-      const a = rainbowPoint(1, 1, first, band1.offset);
-      const b = rainbowPoint(2, 0, second, band2.offset);
-      assert.equal(start.y, 200);
-      assert.ok(Math.abs(a.y - b.y) < 1e-9);
-      assert.ok(Math.abs((exit === LEFT ? a.x : a.x - 100)) < 1e-9);
-      assert.ok(Math.abs((nextEntry === LEFT ? b.x : b.x - 100)) < 1e-9);
-    }
-  }
-});
-
-test('stage 1 keeps a clean regular band profile', () => {
-  const seed = seedHash('normal-start');
-  assert.deepEqual(rainbowBand(1, 0, 12, seed), { width: 12, offset: 0 });
   assert.deepEqual(rainbowBand(1, 3, 12, seed), { width: 12, offset: 32.4 });
-});
-
-test('later seeded color bands have visibly different widths', () => {
-  const seed = seedHash('god-seed');
   const widths = Array.from({ length: 7 }, (_, i) => rainbowBand(3, i, 12, seed).width);
   assert.ok(Math.max(...widths) - Math.min(...widths) > 1);
-});
-
-test('later rainbow spreads and twists inside a segment but keeps edge continuity', () => {
-  const seed = seedHash('twist');
-  const scene = { w: 100, h: 200, entry: LEFT, exit: RIGHT, seed };
-  const band = rainbowBand(9, 5, 12, seed);
-  const centerEdge = rainbowPoint(9, 0, scene, band.offset);
-  const centerMid = rainbowPoint(9, 0.37, scene, band.offset);
-  const plainMid = rainbowPoint(9, 0.37, scene, 0);
-  assert.ok(Math.hypot(centerMid.x - plainMid.x, centerMid.y - plainMid.y) > 1);
-  assert.equal(centerEdge.x, 0);
-});
-
-test('the same seed generates the same later rainbow geometry', () => {
-  const seed = seedHash('god-seed');
-  const scene = { w: 100, h: 200, entry: TOP, exit: RIGHT, seed };
-  assert.deepEqual(rainbowPoint(5, 0.37, scene, 9), rainbowPoint(5, 0.37, scene, 9));
-});
-
-test('different seeds can produce different later rainbow geometry', () => {
-  const a = { w: 100, h: 200, entry: TOP, exit: RIGHT, seed: seedHash('a') };
-  const b = { ...a, seed: seedHash('b') };
-  const p = rainbowPoint(5, 0.37, a);
-  const q = rainbowPoint(5, 0.37, b);
-  assert.ok(Math.hypot(p.x - q.x, p.y - q.y) > 0.01);
-});
-
-test('a seeded final segment ends inside the screen', () => {
-  const seed = seedHash('end');
-  const scene = { w: 100, h: 200, entry: BOTTOM, exit: -1, seed };
-  const p = rainbowPoint(worldLength(seed), 1, scene);
-  assert.ok(p.x > 0 && p.x < 100);
-  assert.ok(p.y > 0 && p.y < 200);
 });

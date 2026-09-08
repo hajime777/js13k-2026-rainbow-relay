@@ -107,6 +107,10 @@
     return { x: side === LEFT ? -1 : side === RIGHT ? 1 : 0, y: side === TOP ? -1 : side === BOTTOM ? 1 : 0 };
   }
 
+  function firstExit(seed) {
+    return seedUnit(seed, 0, 1) < .5 ? LEFT : RIGHT;
+  }
+
   function routeExit(seed, stage, entry, x = 0, y = 0) {
     const r = seedUnit(seed, stage, x * 37 + y * 101, entry + 503);
     const forward = 0.84 - 0.34 * seedGenes(seed).turn;
@@ -247,6 +251,6 @@
     CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
     seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
-    oppositeSide, routeStep, routeExit, finalPoint, rainbowPoint, rainbowBand,
+    oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
   });
 })();

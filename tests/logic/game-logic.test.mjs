@@ -214,3 +214,9 @@ test('resize preserves current sky state instead of rebuilding the stage', () =>
   assert.ok(source.includes('maskCtx.drawImage(m,0,0,m.width,m.height,0,0,W,H)'));
   assert.ok(source.includes('revealed=points.reduce((n,p)=>n+p.hit,0)'));
 });
+
+test('game cursor is visible before Start', () => {
+  const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
+  assert.ok(source.includes('function cursor(){if(mouse.x<0||overview)return'));
+  assert.ok(!source.includes('function cursor(){if(!running||'));
+});

@@ -215,8 +215,10 @@ test('resize preserves current sky state instead of rebuilding the stage', () =>
   assert.ok(source.includes('revealed=points.reduce((n,p)=>n+p.hit,0)'));
 });
 
-test('game cursor is visible before Start', () => {
+test('native cursor is visible before Start and scrub cursor is used while running', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
-  assert.ok(source.includes('function cursor(){if(mouse.x<0||overview)return'));
-  assert.ok(!source.includes('function cursor(){if(!running||'));
+  assert.ok(source.includes('touch-action:none;cursor:auto'));
+  assert.ok(source.includes("function cursor(){if(!running||mouse.x<0||overview)return"));
+  assert.ok(source.includes("running=1;c.style.cursor='none';resetBtn.style.display='none'"));
+  assert.ok(source.includes("running=0;c.style.cursor='auto'"));
 });

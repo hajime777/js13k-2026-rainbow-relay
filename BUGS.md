@@ -35,8 +35,8 @@ Reports prefixed with `Sバグ` are added here and addressed on `develop`.
 - Reported: 2026-09-10
 - Fixed: 2026-09-10
 - Symptom: Before pressing Start, the pointer disappears inside the game canvas, making it unclear where the cursor is.
-- Cause: The native canvas cursor is hidden and the custom scrub cursor was also suppressed while `running` was false.
-- Fix: The custom game cursor is now drawn before Start as well; scrubbing still remains disabled until Start.
-- Regression: Logic test verifies that `cursor()` is not gated by `running`.
-- Fix commit: `68c8c12aab96aecd568d411076063dd052c3e135`
-- Regression commit: `d059ebc4f5362c05998d088904be8f25bd7c209f`
+- Cause: The canvas hid the native cursor before gameplay began.
+- Fix: Before Start (and after GOAL/TIME UP), the normal browser cursor is shown. During gameplay, the native cursor is hidden and the existing circular scrub cursor is used.
+- Regression: Logic test verifies native cursor before Start, scrub cursor while running, and normal cursor restoration after gameplay.
+- Final fix commit: `92a39eabc3a71e27db2048b5f1414a01d379d7ad`
+- Regression commit: `a5cec6c5392d603d0fbcecf001c4fd3e6d66b13e`

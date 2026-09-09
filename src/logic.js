@@ -221,8 +221,7 @@
     if (!offset) return p;
     const seed = rainbow.seed >>> 0, g = seedGenes(seed);
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
-    offset = offset * (1 + e * (0.03 + 0.28 * g.width) * Math.sin(u * Math.PI * 2 + phase)) +
-      e * Math.min(rainbow.w, rainbow.h) * (0.001 + 0.012 * g.twist) * Math.sin(u * Math.PI * 2 + phase + offset * 0.11);
+    offset *= 1 + e * (0.03 + 0.18 * g.width + 0.10 * g.twist) * Math.sin(u * Math.PI * 2 + phase);
     const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
     const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;

@@ -250,3 +250,4 @@
     oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
   });
 })();
+if(typeof document!='undefined'){let b=document.querySelector('.seedbar'),t=document.querySelector('.title'),s=document.createElement('span'),h=()=>b.style.display='none';b.style.display='none';t.style.pointerEvents='auto';s.textContent=' 🌱';s.style.cursor='pointer';s.onclick=()=>b.style.display=b.style.display?'':'none';t.append(s);document.querySelector('#seedGo').addEventListener('click',h);document.querySelector('#seed').addEventListener('keydown',e=>e.key==='Enter'&&h())}

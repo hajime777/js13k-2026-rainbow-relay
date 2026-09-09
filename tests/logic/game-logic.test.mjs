@@ -65,12 +65,21 @@ test('numeric seed text is the actual 32-bit genome id', () => {
 test('genome encoding exposes controllable tendencies', () => {
   const seed = seedFromGenes({ length: 16, bend: .8, width: .9, twist: .9, color: .8, turn: .6, branch: .4, detail: 7 });
   const g = seedGenes(seed);
-  assert.ok(g.length >= 14 && g.length <= 18);
+  assert.equal(g.length, 16);
   assert.ok(Math.abs(g.bend - .8) < .08);
   assert.ok(Math.abs(g.width - .9) < .08);
   assert.ok(Math.abs(g.twist - .9) < .08);
   assert.ok(Math.abs(g.color - .8) < .08);
   assert.equal(g.detail, 7);
+});
+
+test('every world length from 4 through 32 can be selected exactly', () => {
+  assert.equal(MIN_STAGE, 4);
+  assert.equal(MAX_STAGE, 32);
+  for (let length = MIN_STAGE; length <= MAX_STAGE; length++) {
+    const seed = seedFromGenes({ length, detail: length & 31 });
+    assert.equal(worldLength(seed), length, `requested ${length}, seed ${seed}`);
+  }
 });
 
 test('selected seed worlds are finite and connected', () => {

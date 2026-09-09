@@ -61,9 +61,10 @@
     return seedMix(seed, a, b, c) / 4294967296;
   }
 
+  const LENGTHS = [12,16,18,20,22,4,24,26,28,29,31,5,5,6,6,7,7,8,9,10,11,13,14,15,17,19,21,23,25,27,30,32];
+
   function lengthFromCode(code) {
-    const r = code / 31;
-    return Math.min(MAX_STAGE, MIN_STAGE + Math.floor(r * r * r * (MAX_STAGE - MIN_STAGE + 1)));
+    return LENGTHS[code & 31];
   }
 
   function seedGenes(seed) {
@@ -82,12 +83,9 @@
 
   function seedFromGenes(g = {}) {
     const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, Number(v) || 0));
-    const wanted = clamp(g.length ?? 12, MIN_STAGE, MAX_STAGE);
-    let lc = 0, best = 1e9;
-    for (let i = 0; i < 32; i++) {
-      const d = Math.abs(lengthFromCode(i) - wanted);
-      if (d < best) { best = d; lc = i; }
-    }
+    const wanted = Math.round(clamp(g.length ?? 12, MIN_STAGE, MAX_STAGE));
+    let lc = LENGTHS.indexOf(wanted);
+    if (lc < 0) lc = 5;
     const q4 = v => Math.round(clamp(v) * 15);
     const q3 = v => Math.round(clamp(v) * 7);
     const detail = Math.max(0, Math.min(31, Math.round(Number(g.detail) || 0)));

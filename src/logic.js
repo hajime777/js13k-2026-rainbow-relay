@@ -222,10 +222,16 @@
     const seed = rainbow.seed >>> 0, g = seedGenes(seed);
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     offset *= 1 + e * (0.03 + 0.18 * g.width + 0.10 * g.twist) * Math.sin(u * Math.PI * 2 + phase);
-    const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
-    const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
-    const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
     const sign = firstExit(seed) === LEFT ? -1 : 1;
+    let dx, dy;
+    if (u === 0) ({ x: dx, y: dy } = inward(rainbow.entry));
+    else if (u === 1 && rainbow.exit >= 0) { ({ x: dx, y: dy } = inward(rainbow.exit)); dx = -dx; dy = -dy; }
+    else {
+      const a = centerPoint(stage, Math.max(0, u - 0.002), rainbow);
+      const b = centerPoint(stage, Math.min(1, u + 0.002), rainbow);
+      dx = b.x - a.x; dy = b.y - a.y;
+    }
+    const l = Math.hypot(dx, dy) || 1;
     const nx = -dy / l * sign, ny = dx / l * sign;
     return { x: p.x + nx * offset, y: p.y + ny * offset };
   }

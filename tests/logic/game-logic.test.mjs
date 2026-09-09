@@ -11,8 +11,8 @@ const {
 } = globalThis.RainbowLogic;
 
 // PowerShell example:
-// $env:RAINBOW_TEST_SEEDS='762178515,2670021042,2316340504'; npm run test:logic
-const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,2670021042,2316340504,3454744287,295455034,777')
+// $env:RAINBOW_TEST_SEEDS='762178515,2670021042,2316340504,3205971344'; npm run test:logic
+const TEST_SEEDS = (process.env.RAINBOW_TEST_SEEDS || '762178515,2670021042,2316340504,3205971344,3454744287,295455034,777')
   .split(',').map(s => s.trim()).filter(Boolean);
 
 function traceSeed(text) {
@@ -148,6 +148,21 @@ test('selected seed color bands do not jump inside a screen', () => {
   }
 });
 
+test('reported high-twist seed keeps neighboring color bands from collapsing', () => {
+  const world = traceSeed('3205971344'), w = 480, h = 853, band = 14, samples = 256;
+  for (const s of world.stages) {
+    const scene = { w, h, entry: s.entry, exit: s.exit, seed: world.seed };
+    for (let j = 0; j <= samples; j++) {
+      const u = j / samples;
+      const p = Array.from({ length: 7 }, (_, i) => rainbowPoint(s.stage, u, scene, rainbowBand(s.stage, i, band, world.seed).offset));
+      for (let i = 0; i < 6; i++) {
+        const d = Math.hypot(p[i + 1].x - p[i].x, p[i + 1].y - p[i].y);
+        assert.ok(d > 8, `seed 3205971344: stage ${s.stage} bands ${i}/${i + 1} collapsed to ${d}`);
+      }
+    }
+  }
+});
+
 test('high twist genome creates more band displacement than low twist genome', () => {
   const base = { length: 8, bend: .5, width: .5, color: .5, turn: .3, branch: 0, detail: 9 };
   const low = seedFromGenes({ ...base, twist: 0 }), high = seedFromGenes({ ...base, twist: 1 });
@@ -195,17 +210,16 @@ test('stage 1 stays a clean quarter circle regardless of genome weirdness', () =
 
 test('unicorn facing mirrors only horizontally and stays upright', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
-  assert.match(source, /function unicorn\(g,X,Y,A,S,F\)\{[^}]*g\.scale\(F\*S,S\)/);
-  assert.equal((source.match(/Math\.atan2\(dy\*f,Math\.abs\(dx\)\)/g) || []).length, 2);
-  assert.match(source, /Math\.atan2\(dy\*f,Math\.abs\(dx\)\),1\.7,f/);
-  assert.match(source, /Math\.atan2\(dy\*f,Math\.abs\(dx\)\),1\.05,f/);
+  assert.match(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.scale\(F\*S,S\)/);
+  assert.doesNotMatch(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.rotate\(/);
+  assert.match(source, /unicorn\(x,p\.x,p\.y,2\.2,f\)/);
+  assert.match(source, /unicorn\(x,ox\+\(h\.x\+p\[0\]\)\*s,oy\+\(h\.y\*a\+p\[1\]\*a\)\*s,1\.5,f\)/);
+});
 
-  for (const [dx, dy] of [[1, -1], [-1, -1], [1, 1], [-1, 1]]) {
-    const f = dx < 0 ? -1 : 1;
-    const a = Math.atan2(dy * f, Math.abs(dx));
-    assert.ok(-Math.cos(a) < 0, `up vector flipped for ${dx},${dy}`);
-    const len = Math.hypot(dx, dy);
-    near(f * Math.cos(a), dx / len, 'unicorn forward x');
-    near(f * Math.sin(a), dy / len, 'unicorn forward y');
-  }
+test('resize preserves current sky state instead of rebuilding the stage', () => {
+  const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
+  assert.ok(source.includes('hits=points.map(p=>p.hit)'));
+  assert.ok(source.includes('if(!ow)return startStage()'));
+  assert.ok(source.includes('maskCtx.drawImage(m,0,0,m.width,m.height,0,0,W,H)'));
+  assert.ok(source.includes('revealed=points.reduce((n,p)=>n+p.hit,0)'));
 });

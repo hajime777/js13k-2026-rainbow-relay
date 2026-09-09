@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import '../../src/logic.js';
 
 const {
@@ -189,5 +190,22 @@ test('stage 1 stays a clean quarter circle regardless of genome weirdness', () =
     near(start.y, 200, 'stage 1 start');
     near(end.x, exit === LEFT ? 0 : 100, 'stage 1 end');
     assert.deepEqual(rainbowBand(1, 3, 12, seed), { width: 12, offset: 32.4 });
+  }
+});
+
+test('unicorn facing mirrors only horizontally and stays upright', () => {
+  const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
+  assert.match(source, /function unicorn\(g,X,Y,A,S,F\)\{[^}]*g\.scale\(F\*S,S\)/);
+  assert.equal((source.match(/Math\.atan2\(dy\*f,Math\.abs\(dx\)\)/g) || []).length, 2);
+  assert.match(source, /Math\.atan2\(dy\*f,Math\.abs\(dx\)\),1\.7,f/);
+  assert.match(source, /Math\.atan2\(dy\*f,Math\.abs\(dx\)\),1\.05,f/);
+
+  for (const [dx, dy] of [[1, -1], [-1, -1], [1, 1], [-1, 1]]) {
+    const f = dx < 0 ? -1 : 1;
+    const a = Math.atan2(dy * f, Math.abs(dx));
+    assert.ok(-Math.cos(a) < 0, `up vector flipped for ${dx},${dy}`);
+    const len = Math.hypot(dx, dy);
+    near(f * Math.cos(a), dx / len, 'unicorn forward x');
+    near(f * Math.sin(a), dy / len, 'unicorn forward y');
   }
 });

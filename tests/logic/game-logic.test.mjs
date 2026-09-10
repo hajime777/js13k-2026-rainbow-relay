@@ -227,6 +227,7 @@ test('scrub cursor is visible in tutorial and during timed play', () => {
   assert.ok(source.includes('if(intro<0)drawTutorialClouds()'));
   assert.ok(source.includes('}cursor()}'));
   assert.ok(source.includes("ready=0;running=1;c.style.cursor='none'"));
+  assert.ok(source.includes("(intro===-1?tutorialScrub:scrub)(last,{x:last.x+1,y:last.y})"));
 });
 
 test('opening demo gates the time limit behind the GO prompt', () => {

@@ -208,7 +208,7 @@ test('unicorn stays upright in opening demo and final overview', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
   assert.match(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.scale\(F\*S,S\)/);
   assert.doesNotMatch(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.rotate\(/);
-  assert.ok(source.includes('unicorn(x,p.x,p.y-30*(1-u),2.2,f)'));
+  assert.ok(source.includes('unicorn(x,p.x,p.y-30*(1-u)-pet*12,2.2,f)'));
   assert.ok(source.includes('unicorn(x,ox+(h.x+p[0])*s,oy+(h.y*a+p[1]*a)*s,1.5,f)'));
 });
 
@@ -230,7 +230,7 @@ test('native cursor is visible before GO and scrub cursor is used while running'
 
 test('opening demo gates the time limit behind the GO prompt', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
-  assert.ok(source.includes("if(intro===-1){intro=0;resetBtn.style.display='none'}"));
+  assert.ok(source.includes("if(intro===-1){startStage();intro=0;resetBtn.style.display='none'}"));
   assert.ok(source.includes("clearText.textContent='お掃除して探して！'"));
   assert.ok(source.includes("nextBtn.textContent='GO'"));
   assert.ok(source.includes("if(ready){ready=0;running=1"));

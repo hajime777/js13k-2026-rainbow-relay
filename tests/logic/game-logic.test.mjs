@@ -222,7 +222,7 @@ test('resize preserves current sky state instead of rebuilding the stage', () =>
 
 test('scrub cursor is visible in tutorial and during timed play', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
-  assert.ok(source.includes("function cursor(){if(mouse.x<0||overview||(!running&&intro!==-1))return"));
+  assert.ok(source.includes("function cursor(){if(mouse.x<0||overview||transition||timeUp||(!running&&intro!==-1))return"));
   assert.ok(source.includes("if(running||intro===-1)c.style.cursor='none'"));
   assert.ok(source.includes('if(intro<0)drawTutorialClouds()'));
   assert.ok(source.includes('}cursor()}'));

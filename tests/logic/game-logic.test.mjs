@@ -233,7 +233,8 @@ test('scrub cursor is visible in tutorial and during timed play', () => {
 test('opening demo gates the time limit behind the GO prompt', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
   assert.ok(source.includes("if(intro===-1){startStage();intro=0;resetBtn.style.display='none'}"));
-  assert.ok(source.includes("clearText.textContent='お掃除して探して！'"));
+  assert.ok(source.includes("clearText.textContent='虹をたどって僕を見つけて！'"));
+  assert.ok(source.includes("clearText.textContent='もっと先にいるよ！'"));
   assert.ok(source.includes("nextBtn.textContent='GO'"));
   assert.ok(source.includes("if(ready){ready=0;running=1"));
   assert.ok(source.includes('if(running&&!overview&&!goal&&!timeUp)'));

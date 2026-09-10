@@ -107,7 +107,10 @@ test('selected seed geometry starts and exits on route sides', () => {
       const scene = { w, h, entry: s.entry, exit: s.exit, seed: world.seed };
       const start = rainbowPoint(s.stage, 0, scene, 0);
       const end = rainbowPoint(s.stage, 1, scene, 0);
-      onSide(start, s.stage === 1 ? BOTTOM : s.entry, w, h, `seed ${text}: stage ${s.stage} start`);
+      if (s.stage === 1) {
+        near(start.y, h * .72, `seed ${text}: stage 1 start y`);
+        near(start.x, s.exit === RIGHT ? w * .28 : w * .72, `seed ${text}: stage 1 start x`);
+      } else onSide(start, s.entry, w, h, `seed ${text}: stage ${s.stage} start`);
       if (s.exit >= 0) onSide(end, s.exit, w, h, `seed ${text}: stage ${s.stage} exit`);
       else assert.ok(end.x >= 0 && end.x <= w && end.y >= 0 && end.y <= h, `seed ${text}: final endpoint`);
     }
@@ -193,8 +196,10 @@ test('stage 1 stays a clean quarter circle regardless of genome weirdness', () =
   for (const exit of [LEFT, RIGHT]) {
     const scene = { w: 100, h: 200, entry: BOTTOM, exit, seed };
     const start = rainbowPoint(1, 0, scene), end = rainbowPoint(1, 1, scene);
-    near(start.y, 200, 'stage 1 start');
-    near(end.x, exit === LEFT ? 0 : 100, 'stage 1 end');
+    near(start.x, exit === RIGHT ? 28 : 72, 'stage 1 start x');
+    near(start.y, 144, 'stage 1 start y');
+    near(end.x, exit === LEFT ? 0 : 100, 'stage 1 end x');
+    near(end.y, 72, 'stage 1 end y');
     assert.deepEqual(rainbowBand(1, 3, 12, seed), { width: 12, offset: 32.4 });
   }
 });

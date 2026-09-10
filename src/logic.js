@@ -115,7 +115,7 @@
   }
 
   function firstRadius(w, h) {
-    return Math.min(w * 0.62, h * 0.34);
+    return w * 0.72;
   }
 
   function edgeValue(seed, key) {
@@ -126,7 +126,7 @@
   function edgePoint(seed, side, key, w, h) {
     if (key === 1 && side < 2) {
       const r = firstRadius(w, h);
-      return { x: side === LEFT ? 0 : w, y: h - r };
+      return { x: side === LEFT ? 0 : w, y: h * 0.72 - r };
     }
     const v = edgeValue(seed, key);
     if (side === LEFT) return { x: 0, y: h * v };
@@ -167,13 +167,13 @@
   }
 
   function firstPoint(u, rainbow, offset = 0) {
-    const w = rainbow.w, h = rainbow.h, r = firstRadius(w, h) - offset;
+    const w = rainbow.w, h = rainbow.h, r = firstRadius(w, h) - offset, cy = h * 0.72;
     if (rainbow.exit === RIGHT) {
       const a = Math.PI + Math.PI / 2 * u;
-      return { x: w + Math.cos(a) * r, y: h + Math.sin(a) * r };
+      return { x: w + Math.cos(a) * r, y: cy + Math.sin(a) * r };
     }
     const a = -Math.PI / 2 * u;
-    return { x: Math.cos(a) * r, y: h + Math.sin(a) * r };
+    return { x: Math.cos(a) * r, y: cy + Math.sin(a) * r };
   }
 
   function centerPoint(stage, u, rainbow) {

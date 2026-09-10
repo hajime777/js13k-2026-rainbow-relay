@@ -1,6 +1,8 @@
 (() => {
   const CLEAR_PERCENT = 90;
   const MIN_STAGE = 4, MAX_STAGE = 32;
+  const BASE_STAGE_COUNT = 32, MAX_STAGE_BONUS = 31;
+  const FIRST_SECTION_COUNT = 4, MAX_SECTION_COUNT = 32;
   const LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
 
   function distancePointToSegment(px, py, a, b) {
@@ -63,6 +65,14 @@
 
   function lengthFromCode(code) {
     return Math.min(MAX_STAGE, MIN_STAGE + (code & 31));
+  }
+
+  function seedStageLimit(seed) {
+    return BASE_STAGE_COUNT + Math.min(MAX_STAGE_BONUS, (seed >>> 27) & 31);
+  }
+
+  function stageSectionCount(stage) {
+    return Math.min(MAX_SECTION_COUNT, FIRST_SECTION_COUNT + Math.max(0, stage - 1));
   }
 
   function seedGenes(seed) {
@@ -239,9 +249,10 @@
   }
 
   globalThis.RainbowLogic = Object.freeze({
-    CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
+    CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, BASE_STAGE_COUNT, MAX_STAGE_BONUS, FIRST_SECTION_COUNT, MAX_SECTION_COUNT,
+    LEFT, RIGHT, TOP, BOTTOM,
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
-    seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
+    seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength, seedStageLimit, stageSectionCount,
     oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
   });
 })();

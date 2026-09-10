@@ -178,20 +178,9 @@
   }
 
   function finalPoint(seed, stage, entry, w, h) {
-    const r = seedUnit(seed, stage, 997, entry);
-    if (r < 0.36) {
-      const p = edgePoint(seed, BOTTOM, stage + 409, w, h);
-      return { x: p.x, y: p.y, side: BOTTOM };
-    }
-    if (r < 0.60) {
-      let side = seedUnit(seed, stage, 1009, entry) < 0.5 ? LEFT : RIGHT;
-      if (side === entry) side = oppositeSide(side);
-      const p = edgePoint(seed, side, stage + 419, w, h);
-      return { x: p.x, y: p.y, side };
-    }
     return {
-      x: w * (0.30 + 0.40 * seedUnit(seed, stage, 31)),
-      y: h * (0.30 + 0.40 * seedUnit(seed, stage, 47)),
+      x: w * (0.28 + 0.44 * seedUnit(seed, stage, 31)),
+      y: h * (0.26 + 0.38 * seedUnit(seed, stage, 47)),
       side: -1,
     };
   }

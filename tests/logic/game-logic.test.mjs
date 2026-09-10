@@ -220,12 +220,13 @@ test('resize preserves current sky state instead of rebuilding the stage', () =>
   assert.ok(source.includes('revealed=points.reduce((n,p)=>n+p.hit,0)'));
 });
 
-test('native cursor is visible before GO and scrub cursor is used while running', () => {
+test('scrub cursor is visible in tutorial and during timed play', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
-  assert.ok(source.includes('touch-action:none;cursor:auto'));
-  assert.ok(source.includes("function cursor(){if(!running||mouse.x<0||overview)return"));
+  assert.ok(source.includes("function cursor(){if(mouse.x<0||overview||(!running&&intro!==-1))return"));
+  assert.ok(source.includes("if(running||intro===-1)c.style.cursor='none'"));
+  assert.ok(source.includes('if(intro<0)drawTutorialClouds()'));
+  assert.ok(source.includes('}cursor()}'));
   assert.ok(source.includes("ready=0;running=1;c.style.cursor='none'"));
-  assert.ok(source.includes("running=0;c.style.cursor='auto'"));
 });
 
 test('opening demo gates the time limit behind the GO prompt', () => {

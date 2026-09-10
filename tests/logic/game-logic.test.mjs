@@ -199,12 +199,12 @@ test('stage 1 stays a clean quarter circle regardless of genome weirdness', () =
   }
 });
 
-test('unicorn facing mirrors only horizontally and stays upright', () => {
+test('unicorn stays upright in opening demo and final overview', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
   assert.match(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.scale\(F\*S,S\)/);
   assert.doesNotMatch(source, /function unicorn\(g,X,Y,S,F\)\{[^}]*g\.rotate\(/);
-  assert.match(source, /unicorn\(x,p\.x,p\.y,2\.2,f\)/);
-  assert.match(source, /unicorn\(x,ox\+\(h\.x\+p\[0\]\)\*s,oy\+\(h\.y\*a\+p\[1\]\*a\)\*s,1\.5,f\)/);
+  assert.ok(source.includes('unicorn(x,p.x,p.y-30*(1-u),2.2,f)'));
+  assert.ok(source.includes('unicorn(x,ox+(h.x+p[0])*s,oy+(h.y*a+p[1]*a)*s,1.5,f)'));
 });
 
 test('resize preserves current sky state instead of rebuilding the stage', () => {
@@ -215,10 +215,20 @@ test('resize preserves current sky state instead of rebuilding the stage', () =>
   assert.ok(source.includes('revealed=points.reduce((n,p)=>n+p.hit,0)'));
 });
 
-test('native cursor is visible before Start and scrub cursor is used while running', () => {
+test('native cursor is visible before GO and scrub cursor is used while running', () => {
   const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
   assert.ok(source.includes('touch-action:none;cursor:auto'));
   assert.ok(source.includes("function cursor(){if(!running||mouse.x<0||overview)return"));
-  assert.ok(source.includes("running=1;c.style.cursor='none';resetBtn.style.display='none'"));
+  assert.ok(source.includes("ready=0;running=1;c.style.cursor='none'"));
   assert.ok(source.includes("running=0;c.style.cursor='auto'"));
+});
+
+test('opening demo gates the time limit behind the GO prompt', () => {
+  const source = readFileSync(new URL('../../src/index.html', import.meta.url), 'utf8');
+  assert.ok(source.includes("if(intro===-1){intro=0;resetBtn.style.display='none'}"));
+  assert.ok(source.includes("clearText.textContent='お掃除して探して！'"));
+  assert.ok(source.includes("nextBtn.textContent='GO'"));
+  assert.ok(source.includes("if(ready){ready=0;running=1"));
+  assert.ok(source.includes('if(running&&!overview&&!goal&&!timeUp)'));
+  assert.ok(source.includes('function drawIntro()'));
 });

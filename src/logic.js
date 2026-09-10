@@ -3,6 +3,10 @@
   const MIN_STAGE = 4, MAX_STAGE = 32;
   const BASE_STAGE_COUNT = 32, MAX_STAGE_BONUS = 31;
   const FIRST_SECTION_COUNT = 4, MAX_SECTION_COUNT = 32;
+  const SECONDS_PER_SECTION = 5, MIN_STAGE_TIME = 12, MAX_CLEAN_BONUS = 12;
+  const CLEANER_LEVEL_STEP = 5, MAX_CLEANER_LEVEL = 8;
+  const CLEANER_RADIUS = 52, CLEANER_RADIUS_STEP = 5;
+  const CLEANER_PUSH = 1, CLEANER_PUSH_STEP = .12;
   const LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3;
 
   function distancePointToSegment(px, py, a, b) {
@@ -73,6 +77,34 @@
 
   function stageSectionCount(stage) {
     return Math.min(MAX_SECTION_COUNT, FIRST_SECTION_COUNT + Math.max(0, stage - 1));
+  }
+
+  function cleanerLevel(stage) {
+    return Math.min(MAX_CLEANER_LEVEL, 1 + Math.floor(Math.max(0, stage - 1) / CLEANER_LEVEL_STEP));
+  }
+
+  function cleanerRadius(stage) {
+    return CLEANER_RADIUS + (cleanerLevel(stage) - 1) * CLEANER_RADIUS_STEP;
+  }
+
+  function cleanerPush(stage) {
+    return CLEANER_PUSH + (cleanerLevel(stage) - 1) * CLEANER_PUSH_STEP;
+  }
+
+  function stageBaseTime(stage) {
+    return Math.max(MIN_STAGE_TIME, stageSectionCount(stage) * SECONDS_PER_SECTION);
+  }
+
+  function cleanTimeBonus(cleanRate) {
+    return Math.round(Math.max(0, Math.min(100, cleanRate)) * MAX_CLEAN_BONUS / 100);
+  }
+
+  function nextStageTime(stage, cleanRate) {
+    return Math.max(MIN_STAGE_TIME, stageBaseTime(stage + 1) + cleanTimeBonus(cleanRate));
+  }
+
+  function stageScore(rainbowRate, cleanRate, timeLeft) {
+    return Math.round(Math.max(0, rainbowRate) * 10 + Math.max(0, cleanRate) * 10 + Math.max(0, timeLeft) * 25);
   }
 
   function seedGenes(seed) {
@@ -250,9 +282,12 @@
 
   globalThis.RainbowLogic = Object.freeze({
     CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, BASE_STAGE_COUNT, MAX_STAGE_BONUS, FIRST_SECTION_COUNT, MAX_SECTION_COUNT,
+    SECONDS_PER_SECTION, MIN_STAGE_TIME, MAX_CLEAN_BONUS, CLEANER_LEVEL_STEP, MAX_CLEANER_LEVEL,
+    CLEANER_RADIUS, CLEANER_RADIUS_STEP, CLEANER_PUSH, CLEANER_PUSH_STEP,
     LEFT, RIGHT, TOP, BOTTOM,
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
     seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength, seedStageLimit, stageSectionCount,
+    cleanerLevel, cleanerRadius, cleanerPush, stageBaseTime, cleanTimeBonus, nextStageTime, stageScore,
     oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
   });
 })();

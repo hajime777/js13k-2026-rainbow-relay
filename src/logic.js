@@ -1,5 +1,5 @@
 (() => {
-  const CLEAR_PERCENT = 90;
+  const CLEAR_PERCENT = 80;
   const MIN_STAGE = 4, MAX_STAGE = 32;
   const BASE_STAGE_COUNT = 32, MAX_STAGE_BONUS = 31;
   const FIRST_SECTION_COUNT = 4, MAX_SECTION_COUNT = 32;
@@ -23,6 +23,16 @@
 
   function isClearedPercent(percent, threshold = CLEAR_PERCENT) {
     return percent >= threshold;
+  }
+
+  function isRainbowConnected(points, maxGap = 4) {
+    if (!points.length || !points[0].hit || !points[points.length - 1].hit) return false;
+    let gap = 0;
+    for (const point of points) {
+      if (point.hit) gap = 0;
+      else if (++gap > maxGap) return false;
+    }
+    return true;
   }
 
   function markRevealPoints(points, a, b, radius) {
@@ -282,7 +292,7 @@
     SECONDS_PER_SECTION, MIN_STAGE_TIME, MAX_CLEAN_BONUS, CLEANER_LEVEL_STEP, MAX_CLEANER_LEVEL,
     CLEANER_RADIUS, CLEANER_RADIUS_STEP, CLEANER_PUSH, CLEANER_PUSH_STEP,
     LEFT, RIGHT, TOP, BOTTOM,
-    distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
+    distancePointToSegment, revealPercent, isClearedPercent, isRainbowConnected, markRevealPoints,
     seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength, seedStageLimit, stageSectionCount,
     cleanerLevel, cleanerRadius, cleanerPush, stageBaseTime, cleanTimeBonus, nextStageTime, stageScore,
     oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowSpread, rainbowPoint, rainbowBand,

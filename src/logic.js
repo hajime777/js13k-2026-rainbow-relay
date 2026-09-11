@@ -247,7 +247,9 @@
     if (!offset) return p;
     const seed = rainbow.seed >>> 0, g = seedGenes(seed);
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
-    offset *= 1 + e * (0.03 + 0.18 * g.width + 0.10 * g.twist) * Math.sin(u * Math.PI * 2 + phase);
+    const weird = (g.bend + g.twist + g.turn) / 3;
+    const spread = Math.max(.55, Math.min(1.45, 1 + e * (.02 + .08 * g.width + .45 * weird) * Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 2)) + phase)));
+    offset *= spread;
     const sign = firstExit(seed) === LEFT ? -1 : 1;
     let dx, dy;
     if (u === 0) ({ x: dx, y: dy } = inward(rainbow.entry));

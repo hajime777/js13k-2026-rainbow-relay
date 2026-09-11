@@ -1,11 +1,16 @@
 # Bugs
 
 Simple in-repo bug list. Keep one entry per reproducible problem.
-Reports prefixed with `Sバグ` are added here and addressed on `develop`.
+Reports prefixed with `Xバグ` (`Aバグ`, `Bバグ`, `Cバグ`, etc.) are added here and addressed on `develop`.
 
 ## Open
 
-- None.
+### BUG-004 — Rainbow width deformation can create gaps between colors
+- Status: Open
+- Severity: C
+- Reported: 2026-09-11
+- Symptom: When the rainbow changes thickness, gaps can appear between neighboring color bands instead of keeping the rainbow visually continuous.
+- Suspected area: The dynamic band-offset scaling in `rainbowPoint()` and fixed per-band stroke widths from `rainbowBand()` can diverge during strong width deformation.
 
 ## Fixed
 

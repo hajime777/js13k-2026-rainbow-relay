@@ -249,7 +249,7 @@
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     const weird = (g.bend + g.twist + g.turn) / 3;
     const wave = Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 3)) + phase) + .45 * Math.sin(u * Math.PI * 4 + phase * .37);
-    const spread = Math.max(.25, Math.min(1.9, 1 + e * (.03 + .12 * g.width + .72 * weird) * wave));
+    const spread = Math.max(.66, Math.min(2.1, 1 + .5 * g.twist * e + e * (.03 + .12 * g.width + .72 * weird) * wave));
     offset *= spread;
     const sign = firstExit(seed) === LEFT ? -1 : 1;
     let dx, dy;

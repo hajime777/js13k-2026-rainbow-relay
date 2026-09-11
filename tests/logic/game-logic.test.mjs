@@ -170,15 +170,20 @@ test('reported high-twist seed keeps neighboring color bands from collapsing', (
   }
 });
 
-test('high twist genome creates more band displacement than low twist genome', () => {
+test('high twist genome creates more band-width movement than low twist genome', () => {
   const base = { length: 8, bend: .5, width: .5, color: .5, turn: .3, branch: 0, detail: 9 };
   const low = seedFromGenes({ ...base, twist: 0 }), high = seedFromGenes({ ...base, twist: 1 });
   const scene = seed => ({ w: 100, h: 200, entry: LEFT, exit: RIGHT, seed });
-  const u = .37, offset = 45;
-  const lp = rainbowPoint(3, u, scene(low), offset), lc = rainbowPoint(3, u, scene(low), 0);
-  const hp = rainbowPoint(3, u, scene(high), offset), hc = rainbowPoint(3, u, scene(high), 0);
-  const ld = Math.hypot(lp.x - lc.x, lp.y - lc.y), hd = Math.hypot(hp.x - hc.x, hp.y - hc.y);
-  assert.ok(hd > ld);
+  const offset = 45;
+  const movement = seed => {
+    const values = [];
+    for (let i = 0; i <= 128; i++) {
+      const u = i / 128, p = rainbowPoint(3, u, scene(seed), offset), c = rainbowPoint(3, u, scene(seed), 0);
+      values.push(Math.hypot(p.x - c.x, p.y - c.y));
+    }
+    return Math.max(...values) - Math.min(...values);
+  };
+  assert.ok(movement(high) > movement(low));
 });
 
 test('high color gene increases band-width variation', () => {
@@ -227,7 +232,7 @@ test('scrub cursor is visible in tutorial and during timed play', () => {
   assert.ok(source.includes('if(intro<0)drawTutorialClouds()'));
   assert.ok(source.includes('}cursor()}'));
   assert.ok(source.includes("ready=0;running=1;c.style.cursor='none'"));
-  assert.ok(source.includes("(intro===-1?tutorialScrub:scrub)(last,{x:last.x+1,y:last.y})"));
+  assert.ok(source.includes("if(intro===-1)tutorialScrub(last,{x:last.x+1,y:last.y});else{revealed+=blowBurst(last);scrub(last,{x:last.x+1,y:last.y})}"));
 });
 
 test('opening demo gates the time limit behind the GO prompt', () => {
@@ -237,6 +242,7 @@ test('opening demo gates the time limit behind the GO prompt', () => {
   assert.ok(source.includes("clearText.textContent='もっと先にいるよ！'"));
   assert.ok(source.includes("nextBtn.textContent='GO'"));
   assert.ok(source.includes("if(ready){ready=0;running=1"));
-  assert.ok(source.includes('if(running&&!overview&&!goal&&!timeUp)'));
+  assert.ok(source.includes('if(running&&!overview&&!goal&&!timeUp&&!sectionClearT)'));
+  assert.ok(source.includes("sectionClearT=GAME_CONFIG.SECTION_CLEAR_DELAY;clearText.textContent='SECTION CLEAR!'"));
   assert.ok(source.includes('function drawIntro()'));
 });

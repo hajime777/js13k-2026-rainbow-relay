@@ -241,16 +241,21 @@
     return { x: p.x - dy / l * wiggle, y: p.y + dx / l * wiggle };
   }
 
-  function rainbowPoint(stage, u, rainbow, offset = 0) {
-    if (stage === 1) return firstPoint(u, rainbow, offset);
-    const p = centerPoint(stage, u, rainbow);
-    if (!offset) return p;
+  function rainbowSpread(stage, u, rainbow) {
+    if (stage === 1) return 1;
     const seed = rainbow.seed >>> 0, g = seedGenes(seed);
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     const weird = (g.bend + g.twist + g.turn) / 3;
     const wave = Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 3)) + phase) + .45 * Math.sin(u * Math.PI * 4 + phase * .37);
-    const spread = Math.max(.66, Math.min(2.1, 1 + .5 * g.twist * e + e * (.03 + .12 * g.width + .72 * weird) * wave));
-    offset *= spread;
+    return Math.max(.66, Math.min(2.1, 1 + .5 * g.twist * e + e * (.03 + .12 * g.width + .72 * weird) * wave));
+  }
+
+  function rainbowPoint(stage, u, rainbow, offset = 0) {
+    if (stage === 1) return firstPoint(u, rainbow, offset);
+    const p = centerPoint(stage, u, rainbow);
+    if (!offset) return p;
+    offset *= rainbowSpread(stage, u, rainbow);
+    const seed = rainbow.seed >>> 0;
     const sign = firstExit(seed) === LEFT ? -1 : 1;
     let dx, dy;
     if (u === 0) ({ x: dx, y: dy } = inward(rainbow.entry));
@@ -268,8 +273,8 @@
   function rainbowBand(stage, index, band, seed = 0) {
     if (stage === 1) return { width: band, offset: index * band * 0.90 };
     const g = seedGenes(seed), n = seedUnit(seed, index, 101) * 2 - 1;
-    const width = band * (0.82 + 0.36 * g.width) * (1 + n * (0.03 + 0.24 * g.color));
-    return { width, offset: index * band * 0.90 };
+    const factor = (0.82 + 0.36 * g.width) * (1 + n * (0.03 + 0.24 * g.color));
+    return { width: band * Math.max(.95, factor), offset: index * band * 0.90 };
   }
 
   globalThis.RainbowLogic = Object.freeze({
@@ -280,7 +285,7 @@
     distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
     seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength, seedStageLimit, stageSectionCount,
     cleanerLevel, cleanerRadius, cleanerPush, stageBaseTime, cleanTimeBonus, nextStageTime, stageScore,
-    oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
+    oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowSpread, rainbowPoint, rainbowBand,
   });
 })();
 if(typeof document!='undefined'){let b=document.querySelector('.seedbar'),t=document.querySelector('.title'),s=document.createElement('span'),h=()=>b.style.display='none';b.style.display='none';t.style.pointerEvents='auto';s.textContent=' 🌱';s.style.cursor='pointer';s.onclick=()=>b.style.display=b.style.display?'':'none';t.append(s);document.querySelector('#seedGo').addEventListener('click',h);document.querySelector('#seed').addEventListener('keydown',e=>e.key==='Enter'&&h())}

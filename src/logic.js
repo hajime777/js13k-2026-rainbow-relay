@@ -248,7 +248,8 @@
     const seed = rainbow.seed >>> 0, g = seedGenes(seed);
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     const weird = (g.bend + g.twist + g.turn) / 3;
-    const spread = Math.max(.55, Math.min(1.45, 1 + e * (.02 + .08 * g.width + .45 * weird) * Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 2)) + phase)));
+    const wave = Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 3)) + phase) + .45 * Math.sin(u * Math.PI * 4 + phase * .37);
+    const spread = Math.max(.25, Math.min(1.9, 1 + e * (.03 + .12 * g.width + .72 * weird) * wave));
     offset *= spread;
     const sign = firstExit(seed) === LEFT ? -1 : 1;
     let dx, dy;

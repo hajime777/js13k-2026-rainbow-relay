@@ -5,7 +5,7 @@ import '../../src/logic.js';
 
 const {
   CLEAR_PERCENT, MIN_STAGE, MAX_STAGE, LEFT, RIGHT, TOP, BOTTOM,
-  distancePointToSegment, revealPercent, isClearedPercent, markRevealPoints,
+  distancePointToSegment, revealPercent, isClearedPercent, isRainbowConnected, markRevealPoints,
   seedHash, seedMix, seedUnit, seedGenes, seedFromGenes, worldLength,
   oppositeSide, routeStep, firstExit, routeExit, finalPoint, rainbowPoint, rainbowBand,
 } = globalThis.RainbowLogic;
@@ -46,11 +46,25 @@ function onSide(p, side, w, h, message) {
 
 test('basic helpers keep their behavior', () => {
   assert.equal(distancePointToSegment(5, 3, { x: 0, y: 0 }, { x: 10, y: 0 }), 3);
-  assert.equal(CLEAR_PERCENT, 90);
+  assert.equal(CLEAR_PERCENT, 80);
   assert.equal(revealPercent(76, 84), 90);
-  assert.equal(isClearedPercent(90), true);
+  assert.equal(isClearedPercent(80), true);
   const points = [{ x: 2, y: 0, hit: 1 }, { x: 4, y: 0, hit: 0 }];
   assert.equal(markRevealPoints(points, { x: 0, y: 0 }, { x: 10, y: 0 }, 4), 1);
+});
+
+test('section clear connection requires both ends and rejects large gaps', () => {
+  const p = Array.from({ length: 20 }, () => ({ hit: 1 }));
+  p[5].hit = p[6].hit = p[7].hit = p[8].hit = 0;
+  assert.equal(isRainbowConnected(p), true);
+  p[9].hit = 0;
+  assert.equal(isRainbowConnected(p), false);
+  p[9].hit = 1;
+  p[0].hit = 0;
+  assert.equal(isRainbowConnected(p), false);
+  p[0].hit = 1;
+  p.at(-1).hit = 0;
+  assert.equal(isRainbowConnected(p), false);
 });
 
 test('numeric seed text is the actual 32-bit genome id', () => {
@@ -243,6 +257,7 @@ test('opening demo gates the time limit behind the GO prompt', () => {
   assert.ok(source.includes("nextBtn.textContent='GO'"));
   assert.ok(source.includes("if(ready){ready=0;running=1"));
   assert.ok(source.includes('if(running&&!overview&&!goal&&!timeUp&&!sectionClearT)'));
+  assert.ok(source.includes('isClearedPercent(p)&&isRainbowConnected(points)&&!cleared'));
   assert.ok(source.includes("sectionClearT=GAME_CONFIG.SECTION_CLEAR_DELAY;clearText.textContent='SECTION CLEAR!'"));
   assert.ok(source.includes('function drawIntro()'));
 });

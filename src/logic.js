@@ -236,14 +236,14 @@
       n1 = { x: dx / l, y: dy / l };
     }
     const m = Math.min(w, h);
-    const bend = m * (0.24 + 0.34 * g.bend + 0.05 * seedUnit(seed, stage, 13));
+    const bend = m * (0.27 + 0.20 * g.bend + 0.05 * seedUnit(seed, stage, 13));
     const c1 = { x: start.x + n0.x * bend, y: start.y + n0.y * bend };
     const c2 = { x: end.x + n1.x * bend, y: end.y + n1.y * bend };
     const p = bezier(start, c1, c2, end, u);
     const e = Math.sin(Math.PI * u);
-    const amp = m * (0.002 + 0.05 * g.twist);
+    const amp = m * (0.002 + 0.024 * g.twist);
     const phase = seedUnit(seed, stage, 19) * Math.PI * 2;
-    const freq = 1 + Math.floor(g.twist * 4 + seedUnit(seed, stage, 23) * 2);
+    const freq = 1 + Math.floor(g.twist * 2 + seedUnit(seed, stage, 23) * 1.5);
     const q0 = bezier(start, c1, c2, end, Math.max(0, u - 0.003));
     const q1 = bezier(start, c1, c2, end, Math.min(1, u + 0.003));
     const dx = q1.x - q0.x, dy = q1.y - q0.y, l = Math.hypot(dx, dy) || 1;
@@ -257,7 +257,7 @@
     const e = Math.sin(Math.PI * u), phase = seedUnit(seed, stage, 331) * Math.PI * 2;
     const weird = (g.bend + g.twist + g.turn) / 3;
     const wave = Math.sin(u * Math.PI * 2 * (1 + Math.floor(weird * 3)) + phase) + .45 * Math.sin(u * Math.PI * 4 + phase * .37);
-    return Math.max(.6, Math.min(2.6, 1 + .75 * g.twist * e + e * (.03 + .12 * g.width + 1.05 * weird) * wave));
+    return Math.max(.66, Math.min(2.35, 1 + .65 * g.twist * e + e * (.03 + .12 * g.width + .9 * weird) * wave));
   }
 
   function rainbowPoint(stage, u, rainbow, offset = 0) {

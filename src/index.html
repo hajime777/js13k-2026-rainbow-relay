@@ -22,7 +22,7 @@
 <script src="./logic.js"></script>
 <script>
 (()=>{
-const GAME_CONFIG={SECONDS_PER_SECTION:5,INITIAL_TIME_BONUS:10,SECTION_CLEAR_DELAY:2,WIND_START_STAGE:1,WIND_LENGTH:180,WIND_HALF_WIDTH:70,WIND_PUSH:220,WIND_REVEAL_RADIUS:38,WIND_MIN_DRAG:6,WIND_BURST_RADIUS:150,WIND_BURST_PUSH:260,WIND_BURST_REVEAL_RADIUS:65};
+const GAME_CONFIG={SECONDS_PER_SECTION:5,INITIAL_TIME_BONUS:10,SECTION_CLEAR_DELAY:2,WIND_START_STAGE:1,WIND_LENGTH:180,WIND_HALF_WIDTH:70,WIND_PUSH:220,WIND_REVEAL_RADIUS:27,WIND_MIN_DRAG:6,WIND_BURST_RADIUS:150,WIND_BURST_PUSH:260,WIND_BURST_REVEAL_RADIUS:46};
 const {LEFT,RIGHT,BOTTOM,distancePointToSegment,revealPercent,isClearedPercent,isRainbowConnected,markRevealPoints,seedHash,seedMix,seedUnit,stageSectionCount,seedStageLimit,oppositeSide,routeStep,firstExit,routeExit,rainbowSpread,rainbowPoint,rainbowBand}=RainbowLogic;
 const c=document.querySelector('#c'),x=c.getContext('2d'),pct=document.querySelector('#pct'),fill=document.querySelector('#fill'),clearDialog=document.querySelector('#clearDialog'),clearText=document.querySelector('#clearText'),nextBtn=document.querySelector('#next'),seedInput=document.querySelector('#seed'),timer=document.querySelector('#timer'),resetBtn=document.querySelector('#reset');
 const cleanCanvas=document.createElement('canvas'),cleanCtx=cleanCanvas.getContext('2d');

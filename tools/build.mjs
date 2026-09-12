@@ -15,6 +15,7 @@ const zipPath = path.join(distDir, 'game.zip');
 
 const htmlSource = fs.readFileSync(srcPath, 'utf8');
 const logicSource = fs.readFileSync(logicPath, 'utf8');
+const version = logicSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
 const source = htmlSource.replace(
   '<script src="./logic.js"></script>',
   `<script>${logicSource}</script>`,
@@ -56,6 +57,7 @@ const remaining = LIMIT - zipBytes;
 const percent = ((zipBytes / LIMIT) * 100).toFixed(1);
 
 console.log('\n=== js13k build report ===');
+console.log(`version     : ${version}`);
 console.log(`source html : ${sourceHtmlBytes.toLocaleString()} bytes`);
 console.log(`source logic: ${sourceLogicBytes.toLocaleString()} bytes`);
 console.log(`minified    : ${htmlBytes.toLocaleString()} bytes`);

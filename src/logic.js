@@ -1,5 +1,5 @@
 (() => {
-  const CLEAR_PERCENT = 80;
+  const CLEAR_PERCENT = 70;
   const MIN_STAGE = 4, MAX_STAGE = 32;
   const BASE_STAGE_COUNT = 32, MAX_STAGE_BONUS = 31;
   const FIRST_SECTION_COUNT = 4, MAX_SECTION_COUNT = 32;

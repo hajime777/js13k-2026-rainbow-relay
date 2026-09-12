@@ -26,6 +26,23 @@
   }
 
   function isRainbowConnected(points, maxGap = 4) {
+    if (points.area) {
+      const rows = [];
+      for (const p of points.area) (rows[p.i] ??= [0, 0, 0])[p.k] = p.hit;
+      let reachable;
+      for (const row of rows) {
+        if (!row) return false;
+        if (!reachable) reachable = row.slice();
+        else {
+          const next = row.map((hit, k) => hit && (reachable[k] || reachable[k - 1] || reachable[k + 1]) ? 1 : 0);
+          if ((next[0] || next[2]) && row[1]) next[1] = 1;
+          if (next[1]) { if (row[0]) next[0] = 1; if (row[2]) next[2] = 1; }
+          if (!next.some(Boolean)) return false;
+          reachable = next;
+        }
+      }
+      return !!reachable?.some(Boolean);
+    }
     if (!points.length || !points[0].hit || !points[points.length - 1].hit) return false;
     let gap = 0;
     for (const point of points) {

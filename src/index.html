@@ -60,7 +60,7 @@ function startStage(){clouds=[];rain=[];revealed=0;cloudScore=0;sectionScored=0;
  buildRainbowPoints();prepareStaticScene();rebuildReveal();updateMeter()}
 function buildRainbowPoints(){points=[];track=[];rainbow={w:W,h:H,entry:entrySide,exit:exitSide,band:Math.max(8,Math.min(14,W/28)),seed:worldSeed};
  let a=rainbowBand(stage,0,rainbow.band,worldSeed),m=rainbowBand(stage,3,rainbow.band,worldSeed),z=rainbowBand(stage,6,rainbow.band,worldSeed),o=[a.offset-a.width/2,m.offset,z.offset+z.width/2],count=Math.ceil(Math.hypot(W,H)/15);
- for(let i=0;i<count;i++){let u=i/(count-1);for(let k=0;k<3;k++){let p=rainbowPoint(stage,u,rainbow,o[k]);if(p.x>=0&&p.x<=W&&p.y>=0&&p.y<=H){let q={x:p.x,y:p.y,hit:0};points.push(q);if(k===1)track.push(q)}}}
+ for(let i=0;i<count;i++){let u=i/(count-1);for(let k=0;k<3;k++){let p=rainbowPoint(stage,u,rainbow,o[k]);if(p.x>=0&&p.x<=W&&p.y>=0&&p.y<=H){let q={x:p.x,y:p.y,hit:0,i,k};points.push(q);if(k===1)track.push(q)}}}track.area=points
 }
 function point(e){let r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
 function pushClouds(a,b,list=clouds){let dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<1)return;let nx=dx/L,ny=dy/L;for(const q of list){let d=distancePointToSegment(q.x,q.y,a,b),r=q.s+35;if(d<r){let f=1-d/r,push=Math.min(190,55+L*5)*f;q.d=Math.max(.18,q.d-(.02+f*.05));q.vx=Math.max(-260,Math.min(260,q.vx+nx*push));q.vy=Math.max(-260,Math.min(260,q.vy+ny*push))}}}

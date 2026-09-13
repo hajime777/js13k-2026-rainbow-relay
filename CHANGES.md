@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.13 — Restore direct cloud drawing for Firefox compatibility
+- Type: Compatibility / rendering
+- Status: Implemented
+- Change: Removed the offscreen-canvas cloud sprite caches introduced in v0.2/v0.3 and restored direct cloud-path drawing for both gameplay clouds and the six tutorial clouds.
+- Reason: Windows Firefox reproduced corrupted cloud/rainbow-adjacent rectangles and unstable cloud rendering, making the cached `drawImage()` path unsafe across browsers.
+- Change: Cloud positions, floating motion, depth shading, tutorial-cloud color, and gameplay behavior are preserved; only the rendering path changed.
+- Version: Bumped the visible/build version from `v0.12` to `v0.13`.
+
 ### v0.12 — Hide the Seed bar when play starts
 - Type: UI / safety
 - Status: Implemented

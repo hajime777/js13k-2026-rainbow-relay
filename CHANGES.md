@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.22 — Tighten Stage 5+ timing
+- Type: Gameplay / balance
+- Status: Implemented for playtest
+- Change: Stage 2–4 continue to add `2 seconds × total Sections` after cloud-rate-weighted carryover.
+- Change: From Stage 5 onward, the new Stage allowance is reduced to `1.5 seconds × total Sections` after cloud-rate-weighted carryover.
+- Change: The final Section now counts as 100% cloud clear for the Stage cloud-clear-rate calculation, matching the existing Goal scoring behavior.
+- Version: Bumped the visible/build version from `v0.21` to `v0.22`.
+
 ### v0.21 — Weight carried time by Stage cloud clear rate
 - Type: Gameplay / balance
 - Status: Implemented for final playtest

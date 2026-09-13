@@ -6,6 +6,15 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.25 — Tighten Stage 5+ time allowance
+- Type: Gameplay / balance
+- Status: Implemented for playtest
+- Change: Stage 1 remains unchanged at its current 15-second starting budget.
+- Change: Stage 2–4 add `1.5 seconds × (total Sections - 1)` after cloud-rate-weighted carryover.
+- Change: From Stage 5 onward, the added allowance is reduced to `1 second × (total Sections - 1)`.
+- Change: The final Goal Section remains excluded from both the Stage cloud-clear-rate carryover calculation and added-time calculation.
+- Version: Bumped the visible/build version from `v0.24` to `v0.25`.
+
 ### v0.24 — Tighten Stage 2+ time allowance
 - Type: Gameplay / balance
 - Status: Implemented for final playtest

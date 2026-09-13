@@ -6,6 +6,13 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.26 — Show next Stage added time on Stage clear
+- Type: UI / clarity
+- Status: Implemented for playtest
+- Change: The Stage Clear result now shows the base time that will be added for the next Stage as `TIME +Xs`.
+- Change: The displayed value follows the current balance rules: Stage 2–4 use `1.5 seconds × (Sections - 1)` and Stage 5+ use `1 second × (Sections - 1)`.
+- Version: Bumped the visible/build version from `v0.25` to `v0.26`.
+
 ### v0.25 — Tighten Stage 5+ time allowance
 - Type: Gameplay / balance
 - Status: Implemented for playtest

@@ -6,6 +6,12 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.17 — Show the Stage time limit in the GO prompt
+- Type: UI / clarity
+- Status: Implemented
+- Change: The pre-game GO message now shows the actual Stage time budget, e.g. `20秒以内に虹をたどって僕を見つけて！`, using the current Stage's configured `timeLeft` value.
+- Version: Bumped the visible/build version from `v0.16` to `v0.17`.
+
 ### v0.16 — Tighten Stage timing for playtest
 - Type: Gameplay / balance
 - Status: Implemented for playtest

@@ -6,6 +6,15 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.21 — Weight carried time by Stage cloud clear rate
+- Type: Gameplay / balance
+- Status: Implemented for final playtest
+- Change: Replaced the Stage rainbow-clear-rate multiplier used for time carryover with the Stage cloud-clear rate.
+- Change: The Stage cloud-clear rate is calculated from total clouds actually cleared across all Sections divided by total clouds spawned across those Sections, so Sections with different cloud counts are weighted naturally.
+- Change: The final Section records its actual cleared-cloud count for carryover before the existing Goal scoring path promotes `cloudScore` to the full cloud count.
+- Change: Carried time is now `ceil(remaining time × Stage cloud clear rate)`, then the next Stage still adds `2 seconds × total Sections`.
+- Version: Bumped the visible/build version from `v0.20` to `v0.21`.
+
 ### v0.20 — Weight carried time by Stage rainbow clear rate
 - Type: Gameplay / balance
 - Status: Implemented for final playtest

@@ -6,6 +6,13 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.28 — Show carry + added time + next total
+- Type: UI / clarity
+- Status: Implemented for playtest
+- Change: Stage Clear now shows the cloud-rate-adjusted carried time, the fixed next-Stage allowance, and their resulting total in one line, e.g. `TIME 3 + 9 = 12s`.
+- Change: The values use the same calculation as the actual next Stage: `ceil(remaining time × Stage cloud clear rate) + 1.5 seconds × (next Stage Sections - 1)`.
+- Version: Bumped the visible/build version from `v0.27` to `v0.28`.
+
 ### v0.27 — Restore 1.5s per playable Section for Stage 5+
 - Type: Gameplay / balance
 - Status: Implemented for playtest

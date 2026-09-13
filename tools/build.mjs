@@ -3,27 +3,27 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { minify } from 'html-minifier-terser';
 import { strToU8, zipSync } from 'fflate';
+import { integrateRuntime } from './runtime-transform.mjs';
 
 const LIMIT = 13_312;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcPath = path.join(root, 'src', 'index.html');
 const logicPath = path.join(root, 'src', 'logic.js');
-const compatPath = path.join(root, 'src', 'compat.js');
 const distDir = path.join(root, 'dist');
 const htmlPath = path.join(distDir, 'index.html');
 const zipPath = path.join(distDir, 'game.zip');
 
 const htmlSource = fs.readFileSync(srcPath, 'utf8');
 const logicSource = fs.readFileSync(logicPath, 'utf8');
-const compatSource = fs.readFileSync(compatPath, 'utf8');
-const version = compatSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
-const source = htmlSource.replace(
+const integratedHtml = integrateRuntime(htmlSource);
+const version = integratedHtml.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
+const source = integratedHtml.replace(
   '<script src="./logic.js"></script>',
-  `<script>${logicSource}\n${compatSource}</script>`,
+  `<script>${logicSource}</script>`,
 );
 
-if (source === htmlSource) {
+if (source === integratedHtml) {
   throw new Error('Could not inline src/logic.js: script tag not found in src/index.html');
 }
 
@@ -52,7 +52,7 @@ const zip = zipSync(
 fs.writeFileSync(zipPath, zip);
 
 const sourceHtmlBytes = Buffer.byteLength(htmlSource);
-const sourceLogicBytes = Buffer.byteLength(logicSource) + Buffer.byteLength(compatSource);
+const sourceLogicBytes = Buffer.byteLength(logicSource);
 const htmlBytes = Buffer.byteLength(output);
 const zipBytes = zip.length;
 const remaining = LIMIT - zipBytes;

@@ -15,7 +15,7 @@ const zipPath = path.join(distDir, 'game.zip');
 
 const htmlSource = fs.readFileSync(srcPath, 'utf8');
 const logicSource = fs.readFileSync(logicPath, 'utf8');
-const version = logicSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
+const version = htmlSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
 const source = htmlSource.replace(
   '<script src="./logic.js"></script>',
   `<script>${logicSource}</script>`,

@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.27 — Restore 1.5s per playable Section for Stage 5+
+- Type: Gameplay / balance
+- Status: Implemented for playtest
+- Change: Stage 5 and later now use the same `1.5 seconds × (total Sections - 1)` added-time rule as Stage 2–4.
+- Change: The final Goal Section remains excluded from both added-time and cloud-clear-rate carryover calculations.
+- Change: Stage Clear `TIME +Xs` display now reflects the restored 1.5-second rule.
+- Version: Bumped the visible/build version from `v0.26` to `v0.27`.
+
 ### v0.26 — Show next Stage added time on Stage clear
 - Type: UI / clarity
 - Status: Implemented for playtest

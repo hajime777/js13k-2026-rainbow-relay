@@ -6,6 +6,13 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.9 — Simplify score presentation
+- Type: UI / clarity
+- Status: Implemented
+- Change: Removed the `PREVIOUS` line from the Stage Clear summary. It represented the cumulative score before the current Stage, not only the immediately previous Stage, and is no longer shown.
+- Change: The fixed top-right `SCORE` display now has a stable minimum width and right-aligned text so growing score values remain visually anchored to the right.
+- Version: Bumped the visible/build version from `v0.8` to `v0.9`.
+
 ### v0.8 — Keep only SCORE fixed at the top right
 - Type: UI / clarity
 - Status: Implemented

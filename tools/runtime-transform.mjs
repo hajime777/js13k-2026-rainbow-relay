@@ -1,11 +1,18 @@
 export function integrateRuntime(h){
   const r=[
+    [".timer{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.12);padding:6px 10px;font-size:14px;font-weight:800;color:#69648a;pointer-events:none}",""],
+    [".progress{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.10);padding:7px 9px}.meter{flex:1;height:7px;border-radius:99px;background:#e1e3ed;overflow:hidden}",".progress{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.10);padding:9px 11px}.time{min-width:64px;font-size:11px;font-weight:800}.meter{flex:1;height:9px;border-radius:99px;background:#e1e3ed;overflow:hidden}"],
+    [".pct{min-width:28px;text-align:right;font-size:10px;font-weight:800}",".pct{min-width:32px;text-align:right;font-size:12px;font-weight:800}"],
+    ["<div id=\"timer\" class=\"timer\">TIME --.-</div>\n",""] ,
+    ["<div class=\"controls\"><div class=\"progress\"><div class=\"meter\"><div id=\"fill\" class=\"fill\"></div></div><span id=\"pct\" class=\"pct\">0%</span></div><button id=\"reset\">Start</button></div>","<div class=\"controls\"><div class=\"progress\"><span id=\"timer\" class=\"time\">TIME --.-</span><div class=\"meter\"><div id=\"fill\" class=\"fill\"></div></div><span id=\"pct\" class=\"pct\">0%</span></div><button id=\"reset\">Start</button></div>"],
     ["nextBtn=document.querySelector('#next'),seedInput=document.querySelector('#seed')","nextBtn=document.querySelector('#next'),seedGo=document.querySelector('#seedGo'),seedInput=document.querySelector('#seed')"],
+    ["function showTime(){timer.textContent=timeUp?'SCORE '+finalScore():scoreFlash>0?lastSectionScore:'TIME '+timeLeft.toFixed(1)+' SCORE '+score}","function showTime(){timer.textContent='TIME '+timeLeft.toFixed(1)}"],
+    ["clearText.textContent='虹をたどって僕を見つけて！';nextBtn.textContent='GO'","clearText.textContent='制限時間内に虹をたどって僕を見つけて！';nextBtn.textContent='GO'"],
     ["nextBtn.style.display='';clearDialog.classList.add('show')}}if(sectionClearT)","nextBtn.style.display='';clearDialog.style.cssText='position:fixed;left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:max-content;max-width:90vw;justify-content:center';clearDialog.classList.add('show')}}if(sectionClearT)"],
     ["if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.classList.remove('show')}","if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.style.cssText='';clearDialog.classList.remove('show')}"],
     ["document.querySelector('#seedGo').onclick=()=>applySeed(seedInput.value);seedInput.addEventListener('keydown',e=>{if(e.key==='Enter')applySeed(seedInput.value)})","seedGo.addEventListener('pointerdown',()=>seedInput.blur(),true);seedGo.onclick=()=>applySeed(seedInput.value);seedInput.addEventListener('keydown',e=>{if(e.key==='Enter'){if(e.isComposing){e.stopImmediatePropagation();seedInput.blur();setTimeout(()=>seedGo.click());return}applySeed(seedInput.value)}})"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.6 Seed'"]
+    ["'v0.3 Seed'","'v0.7 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;

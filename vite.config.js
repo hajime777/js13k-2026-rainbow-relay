@@ -1,6 +1,2 @@
-export default {
-  plugins:[{
-    name:'local-compat',
-    transformIndexHtml:h=>h.replace('<script src="./logic.js"></script>','<script src="./logic.js"></script><script src="./compat.js"></script>')
-  }]
-}
+import {integrateRuntime} from './tools/runtime-transform.mjs';
+export default {plugins:[{name:'integrated-runtime',transformIndexHtml:integrateRuntime}]}

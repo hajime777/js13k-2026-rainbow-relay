@@ -6,6 +6,23 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.33 — Shorten localized GO prompt for final size budget
+- Type: UI / localization / submission size
+- Status: Final frozen build
+- Change: Shortened the pre-game time-limit prompt while keeping the dynamic remaining-time value and language behavior.
+- JA: `18秒以内に虹をたどって！`
+- EN: `18s: Follow the rainbow!`
+- Size: Final verified submission build is `13,298 / 13,312 bytes` (14 bytes remaining).
+- Version: Bumped the visible/build version from `v0.32` to `v0.33`.
+
+### v0.32 — Localize the dynamic GO prompt
+- Type: UI / localization
+- Status: Implemented
+- Fix: The dynamically generated `xx秒以内に虹をたどって僕を見つけて！` prompt no longer remains Japanese when the game language is set to EN.
+- Change: The prompt now selects Japanese or English from the active document language while preserving the current Stage time value.
+- Gameplay: No scoring, timing, progression, or rendering behavior changed.
+- Version: Bumped the visible/build version from `v0.31` to `v0.32`.
+
 ### v0.31 — Simplify Section scores on Stage Clear
 - Type: UI / clarity
 - Status: Implemented for final playtest

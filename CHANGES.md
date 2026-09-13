@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.30 — Reuse cached clean scene on Start screen
+- Type: Compatibility / rendering
+- Status: Implemented for Android Firefox playtest
+- Change: The Start screen no longer rebuilds the static sky, sun, ground, and full rainbow with Canvas paths every draw frame; it reuses the existing `cleanCanvas` image instead.
+- Change: Animated tutorial clouds, unicorn, cursor, intro fade, game rules, and the existing Android Firefox ~30fps mitigation remain unchanged.
+- Reason: Investigation found that the idle Start screen still redrew the rainbow as 504 individual stroke segments per frame even though the same static clean scene was already cached.
+- Version: Bumped the visible/build version from `v0.29` to `v0.30`.
+
 ### v0.29 — Limit Android Firefox rendering to 30fps
 - Type: Compatibility / rendering
 - Status: Implemented as a deadline-safe mitigation; root-cause investigation remains follow-up work

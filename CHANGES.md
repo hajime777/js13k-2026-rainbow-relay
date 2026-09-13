@@ -6,6 +6,12 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.6 — Stop redrawing the overview every frame
+- Type: Performance / rendering
+- Status: Implemented
+- Change: The Stage Clear overview is now drawn when it is entered (and on resize) instead of being redrawn on every animation frame. This keeps the displayed result unchanged while reducing mobile Firefox Canvas load after a stage clear.
+- Version: Bumped the visible/build version from `v0.5` to `v0.6`. This version includes the preceding runtime-integration size cleanup plus this overview redraw fix.
+
 ### v0.5 — Center the pre-game GO prompt
 - Type: UI
 - Status: Implemented

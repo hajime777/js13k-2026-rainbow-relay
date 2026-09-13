@@ -6,6 +6,15 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.14 — Simplify GAME OVER score and show current Stage
+- Type: Scoring / UI
+- Status: Implemented
+- Change: Removed the special GAME OVER final-score formula (`x100 + STAGES`). GAME OVER now uses the same score value shown in the fixed top-right SCORE display.
+- Change: Completed Sections in the current unfinished Stage remain included through `stageScore`; the GAME OVER summary lists that current Stage partial score when non-zero, so the displayed Stage values add up to the same SCORE shown at the top right.
+- Change: Added the current Stage number to the bottom HUD, arranged as `TIME ...  STAGE ...  [rainbow meter]  xx%`.
+- Size cleanup: Removed the now-unused `finalScore()` runtime function.
+- Version: Bumped the visible/build version from `v0.13` to `v0.14`.
+
 ### v0.13 — Restore direct cloud drawing for Firefox compatibility
 - Type: Compatibility / rendering
 - Status: Implemented

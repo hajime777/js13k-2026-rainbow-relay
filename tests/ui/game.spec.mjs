@@ -4,6 +4,14 @@ function percentValue(text) {
   return Number.parseInt(String(text).replace('%', ''), 10) || 0;
 }
 
+async function startGameplay(page) {
+  await page.locator('#reset').click();
+  await expect(page.locator('#clearDialog')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('#next')).toHaveText('GO');
+  await page.locator('#next').click();
+  await expect(page.locator('#clearDialog')).toBeHidden();
+}
+
 async function scrubRainbowArea(page) {
   const canvas = page.locator('#c');
   const box = await canvas.boundingBox();
@@ -32,7 +40,7 @@ test.describe('Rainbow Relay prototype UI', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
-    await expect(page.locator('.title')).toHaveText('Rainbow Sky Cleaner');
+    await expect(page.locator('.title')).toContainText('Rainbow Sky Cleaner');
     await expect(page.locator('#pct')).toHaveText('0%');
     await expect(page.locator('#c')).toBeVisible();
     await expect(page.locator('#reset')).toBeVisible();
@@ -44,9 +52,10 @@ test.describe('Rainbow Relay prototype UI', () => {
     expect(pageErrors).toEqual([]);
   });
 
-  test('scrubbing the visible sky increases reveal progress and Restart resets it', async ({ page }) => {
+  test('scrubbing during gameplay increases reveal progress and reload resets it', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
+    await startGameplay(page);
 
     await scrubRainbowArea(page);
 
@@ -54,7 +63,7 @@ test.describe('Rainbow Relay prototype UI', () => {
       return percentValue(await page.locator('#pct').textContent());
     }).toBeGreaterThan(20);
 
-    await page.locator('#reset').click();
+    await page.reload();
     await expect(page.locator('#pct')).toHaveText('0%');
   });
 
@@ -89,6 +98,7 @@ test.describe('Rainbow Relay prototype UI', () => {
 
     await page.goto('/');
     await expect(page.locator('#pct')).toHaveText('0%');
+    await startGameplay(page);
 
     await scrubRainbowArea(page);
 

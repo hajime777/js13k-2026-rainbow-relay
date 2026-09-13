@@ -10,7 +10,7 @@ This file records every intentional game change from now on, not only bugs. Keep
 - Type: UI
 - Status: Implemented
 - Change: The `虹をたどって僕を見つけて！ / GO` prompt is displayed in the center of the game screen instead of in the bottom message area. The normal dialog layout is restored immediately after GO.
-- Dev parity fix: Local `npm run dev` now also loads `src/compat.js`, so local execution shows `v0.5` and includes the same IME/GO compatibility behavior as the submission build instead of remaining at `v0.3`.
+- Dev parity fix: Local `npm run dev` now explicitly loads the repository `vite.config.js`, which injects `src/compat.js`. This fixes local execution remaining at `v0.3` and missing the IME/GO compatibility behavior while the submission build was already `v0.5`.
 
 ### v0.4 — Firefox Mobile IME seed input fix
 - Type: Compatibility / input

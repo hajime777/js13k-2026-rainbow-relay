@@ -9,16 +9,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcPath = path.join(root, 'src', 'index.html');
 const logicPath = path.join(root, 'src', 'logic.js');
+const compatPath = path.join(root, 'src', 'compat.js');
 const distDir = path.join(root, 'dist');
 const htmlPath = path.join(distDir, 'index.html');
 const zipPath = path.join(distDir, 'game.zip');
 
 const htmlSource = fs.readFileSync(srcPath, 'utf8');
 const logicSource = fs.readFileSync(logicPath, 'utf8');
-const version = htmlSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
+const compatSource = fs.readFileSync(compatPath, 'utf8');
+const version = compatSource.match(/\b(v\d+(?:\.\d+)+) Seed\b/)?.[1] ?? 'unknown';
 const source = htmlSource.replace(
   '<script src="./logic.js"></script>',
-  `<script>${logicSource}</script>`,
+  `<script>${logicSource}\n${compatSource}</script>`,
 );
 
 if (source === htmlSource) {
@@ -50,7 +52,7 @@ const zip = zipSync(
 fs.writeFileSync(zipPath, zip);
 
 const sourceHtmlBytes = Buffer.byteLength(htmlSource);
-const sourceLogicBytes = Buffer.byteLength(logicSource);
+const sourceLogicBytes = Buffer.byteLength(logicSource) + Buffer.byteLength(compatSource);
 const htmlBytes = Buffer.byteLength(output);
 const zipBytes = zip.length;
 const remaining = LIMIT - zipBytes;

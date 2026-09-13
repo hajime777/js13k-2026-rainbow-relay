@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.8 — Keep only SCORE fixed at the top right
+- Type: UI / clarity
+- Status: Implemented
+- Change: Restored a fixed top-right score display as `SCORE n` while keeping TIME in the bottom progress bar.
+- Change: Removed the detailed per-Section score flash from the top display; the top-right area now shows score only.
+- Change: The displayed score includes the current Stage's accumulated Section score, so it updates as Sections are completed.
+- Version: Bumped the visible/build version from `v0.7` to `v0.8`.
+
 ### v0.7 — Move TIME into the bottom progress bar
 - Type: UI / clarity
 - Status: Implemented

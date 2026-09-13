@@ -13,9 +13,10 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ### v0.4 — Firefox Mobile IME seed input fix
 - Type: Compatibility / input
-- Status: Implemented
+- Status: Verified fixed
 - Symptom: On Firefox Mobile, pressing Go while the IME is still composing can make the previous seed value be used instead of the text currently shown by the IME.
 - Change: Commit IME composition before the existing Go click handler reads the seed. Enter while composing is deferred until composition finishes.
+- Verification: Confirmed fixed on Firefox Mobile by user on 2026-09-13.
 
 ### v0.3 — Cache tutorial-cloud drawing
 - Type: Performance / compatibility

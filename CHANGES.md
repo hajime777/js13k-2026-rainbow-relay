@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.20 — Weight carried time by Stage rainbow clear rate
+- Type: Gameplay / balance
+- Status: Implemented for final playtest
+- Change: At Stage completion, each Section's rainbow clear percentage is accumulated and averaged across the Stage.
+- Change: The remaining time carried into the next Stage is multiplied by that Stage-average rainbow clear rate before being rounded up to whole seconds. For example, 10.4s remaining with an 86% Stage rainbow average carries as 9s.
+- Change: The next Stage still adds its normal `2 seconds × total Sections` allowance after the weighted carryover is calculated.
+- Version: Bumped the visible/build version from `v0.19` to `v0.20`.
+
 ### v0.19 — Round carried time up to whole seconds
 - Type: Gameplay / clarity
 - Status: Implemented

@@ -14,6 +14,7 @@ export function integrateRuntime(h){
     ["stageScore=0;sectionScores=[];setRain","stageScore=0;stageCloud=stageCloudN=0;sectionScores=[];setRain"],
     ["function finalScore(){return score*100+Math.min(99,stageScores.length)}",""],
     ["function showTime(){timer.textContent=timeUp?'SCORE '+finalScore():scoreFlash>0?lastSectionScore:'TIME '+timeLeft.toFixed(1)+' SCORE '+score}","function showTime(){timer.textContent='TIME '+timeLeft.toFixed(1)+'  STAGE '+gameStage;scoreView.textContent='SCORE '+(score+stageScore)}"],
+    ["sectionScores[stage-1]=s+' C'+cloudScore+(b?' T'+timeLeft.toFixed(1):'');scoreFlash=2.5","sectionScores[stage-1]=s;scoreFlash=2.5"],
     ["if(over){a.push('GAME OVER','');for(let i=0;i<stageScores.length;i++)a.push('STAGE '+(i+1)+'      '+stageScores[i]);a.push('','BASE SCORE   '+score,'FINAL BONUS  x100 + STAGES '+stageScores.length,'FINAL SCORE  '+finalScore())}","if(over){a.push('GAME OVER','');for(let i=0;i<stageScores.length;i++)a.push('STAGE '+(i+1)+'      '+stageScores[i]);if(stageScore)a.push('STAGE '+gameStage+'      '+stageScore);a.push('','SCORE '+(score+stageScore))}"],
     ["function scoreOverlay(){clearDialog.style.cssText='position:fixed;left:50%;right:auto;width:min(94vw,52.875vh);max-height:82vh;transform:translate(-50%,-50%);top:50%;bottom:auto;flex-direction:column;align-items:stretch;padding:18px';clearText.style.fontSize='14px';nextBtn.style.alignSelf='center'}","function scoreOverlay(){clearDialog.style.cssText='position:fixed;left:50%;right:auto;width:min(94vw,52.875vh);max-height:82vh;transform:translate(-50%,-50%);top:50%;bottom:auto;flex-direction:column;align-items:stretch;padding:18px;background:rgba(255,255,255,.52)';clearText.style.fontSize='14px';nextBtn.style.alignSelf='center'}"],
     ["let cur=stageScores[gameStage-1],prev=score-cur;a.push('STAGE '+gameStage+' CLEAR','');if(prev)a.push('PREVIOUS     '+prev,'');","let cur=stageScores[gameStage-1],k=Math.ceil(timeLeft*stageCloud/stageCloudN),b=(stageSectionCount(gameStage+1)-1)*1.5;a.push('STAGE '+gameStage+' CLEAR','');"],
@@ -37,7 +38,7 @@ export function integrateRuntime(h){
     ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.tim;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
     ["function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q),im=tutorialSprite(q),w=q.tiw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q);parts(x,a.x,a.y,q.s,'rgba(255,255,255,.88)')}}"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.30 Seed'"]
+    ["'v0.3 Seed'","'v0.31 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;

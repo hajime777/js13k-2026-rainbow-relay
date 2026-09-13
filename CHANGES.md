@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.23 — Stabilize Android Firefox viewport rendering
+- Type: Compatibility / rendering
+- Status: Implemented for urgent Android Firefox playtest
+- Change: When supported, the game viewport now uses stable small-viewport units (`svh`) instead of following the browser chrome's changing `vh` height while the Android Firefox address/tool bars move.
+- Change: Resize handling is debounced by 120ms so repeated mobile-browser resize events do not continuously reallocate the main and helper canvases.
+- Reason: Android Firefox was showing visible screen flicker during play; repeated viewport/canvas resizes are the primary suspected cause.
+- Version: Bumped the visible/build version from `v0.22` to `v0.23`.
+
 ### v0.22 — Tighten Stage 5+ timing
 - Type: Gameplay / balance
 - Status: Implemented for playtest

@@ -6,6 +6,13 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.16 — Tighten Stage timing for playtest
+- Type: Gameplay / balance
+- Status: Implemented for playtest
+- Change: Stage 1 now starts with a fixed 20-second total time budget.
+- Change: From Stage 2 onward, the total time budget is fixed at 2 seconds per Section (`total Sections × 2s`).
+- Version: Bumped the visible/build version from `v0.15` to `v0.16`.
+
 ### v0.15 — Show Section progress on clear
 - Type: UI / clarity
 - Status: Implemented

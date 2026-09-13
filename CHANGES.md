@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.18 — Carry remaining time into the next Stage
+- Type: Gameplay / balance
+- Status: Implemented for final playtest
+- Change: Stage 1 now starts with 15 seconds total.
+- Change: From Stage 2 onward, each Stage adds `2 seconds × total Sections` to the remaining time instead of resetting the timer, so unused time carries forward between Stages.
+- Change: The GO prompt continues to show the actual available time after carryover and the new Stage allowance are combined.
+- Version: Bumped the visible/build version from `v0.17` to `v0.18`.
+
 ### v0.17 — Show the Stage time limit in the GO prompt
 - Type: UI / clarity
 - Status: Implemented

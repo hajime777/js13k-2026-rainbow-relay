@@ -24,7 +24,7 @@ export function integrateRuntime(h){
     ["clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';clearDialog.classList.remove('show')","clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';timer.parentElement.style.display='';clearDialog.classList.remove('show')"],
     ["clearText.textContent='虹をたどって僕を見つけて！';nextBtn.textContent='GO'","clearText.textContent=Math.round(timeLeft)+'秒以内に虹をたどって僕を見つけて！';nextBtn.textContent='GO'"],
     ["clearText.textContent='SECTION CLEAR!'","clearText.textContent='SECTION CLEAR '+stage+'/'+maxStage"],
-    ["timeLeft=maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0","timeLeft=Math.ceil(timeLeft*stageCloud/stageCloudN)+(maxStage-1)*(gameStage>=10?1:1.5);timeUp=0"],
+    ["timeLeft=maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0","timeLeft=Math.ceil(timeLeft*stageCloud/stageCloudN)+(maxStage-1)*(gameStage>=5?1:1.5);timeUp=0"],
     ["nextBtn.style.display='';clearDialog.classList.add('show')}}if(sectionClearT)","nextBtn.style.display='';clearDialog.style.cssText='position:fixed;left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:max-content;max-width:90vw;justify-content:center';clearDialog.classList.add('show')}}if(sectionClearT)"],
     ["if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.classList.remove('show')}","if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.style.cssText='';clearDialog.classList.remove('show')}"],
     ["resetBtn.onclick=()=>{startAudio();if(timeUp){restartGame();return}if(intro===-1){startStage();intro=0;setRain(.006,.5);startHoof();resetBtn.style.display='none'}}","resetBtn.onclick=()=>{startAudio();if(timeUp){restartGame();return}if(intro===-1){document.querySelector('.seedbar').style.display='none';startStage();intro=0;setRain(.006,.5);startHoof();resetBtn.style.display='none'}}"],
@@ -32,10 +32,10 @@ export function integrateRuntime(h){
     ["addEventListener('resize',resize)","let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(resize,120)})"],
     ["function cloudSprite(q){let k=q.s+'|'+q.d+'|'+D;if(q.im&&q.ik===k)return q.im;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.im||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m+4,m+6,q.s,'rgba(93,101,122,'+(.10+.08*q.d)+')');parts(g,m,m,q.s,'rgba(245,246,249,'+(.26*(1-q.d))+')');parts(g,m,m,q.s,'rgba(154,161,178,'+(.78*q.d)+')');q.im=im;q.ik=k;q.iw=z;return im}",""],
     ["function drawClouds(){for(const q of clouds){let a=cloudPos(q),im=cloudSprite(q),w=q.iw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawClouds(){for(const q of clouds){let a=cloudPos(q);parts(x,a.x+4,a.y+6,q.s,'rgba(93,101,122,'+(.10+.08*q.d)+')');parts(x,a.x,a.y,q.s,'rgba(245,246,249,'+(.26*(1-q.d))+')');parts(x,a.x,a.y,q.s,'rgba(154,161,178,'+(.78*q.d)+')')}}"],
-    ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.tim;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
+    ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.im;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
     ["function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q),im=tutorialSprite(q),w=q.tiw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q);parts(x,a.x,a.y,q.s,'rgba(255,255,255,.88)')}}"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.24 Seed'"]
+    ["'v0.3 Seed'","'v0.25 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;

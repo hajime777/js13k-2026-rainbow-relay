@@ -6,6 +6,13 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.31 — Simplify Section scores on Stage Clear
+- Type: UI / clarity
+- Status: Implemented for final playtest
+- Change: Stage Clear Section rows now show only each Section score; the compact `Cxx` cloud count and `Txx` time detail are no longer displayed there.
+- Change: Scoring calculations, cloud-clear-rate carryover, Goal bonus scoring, and the `TIME carry + add = next` line are unchanged.
+- Version: Bumped the visible/build version from `v0.30` to `v0.31`.
+
 ### v0.30 — Reuse cached clean scene on Start screen
 - Type: Compatibility / rendering
 - Status: Implemented for Android Firefox playtest

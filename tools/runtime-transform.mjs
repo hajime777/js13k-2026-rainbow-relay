@@ -8,6 +8,10 @@ export function integrateRuntime(h){
     ["<div class=\"controls\"><div class=\"progress\"><div class=\"meter\"><div id=\"fill\" class=\"fill\"></div></div><span id=\"pct\" class=\"pct\">0%</span></div><button id=\"reset\">Start</button></div>","<div class=\"controls\"><div class=\"progress\"><span id=\"timer\" class=\"time\">TIME --.-</span><div class=\"meter\"><div id=\"fill\" class=\"fill\"></div></div><span id=\"pct\" class=\"pct\">0%</span></div><button id=\"reset\">Start</button></div>"],
     ["nextBtn=document.querySelector('#next'),seedInput=document.querySelector('#seed')","nextBtn=document.querySelector('#next'),seedGo=document.querySelector('#seedGo'),seedInput=document.querySelector('#seed')"],
     ["timer=document.querySelector('#timer'),resetBtn","timer=document.querySelector('#timer'),scoreView=document.querySelector('#score'),resetBtn"],
+    ["stageScores=[],lastSectionScore","stageScores=[],stageRainbow=0,lastSectionScore"],
+    ["sectionScored=1;let r=rainbowPercent(),m=","sectionScored=1;let r=rainbowPercent();stageRainbow+=r;let m="],
+    ["sectionScores=[];stageScores=[];lastSectionScore='';scoreFlash=0","sectionScores=[];stageScores=[];stageRainbow=0;lastSectionScore='';scoreFlash=0"],
+    ["stageScore=0;sectionScores=[];setRain","stageScore=0;stageRainbow=0;sectionScores=[];setRain"],
     ["function finalScore(){return score*100+Math.min(99,stageScores.length)}",""],
     ["function showTime(){timer.textContent=timeUp?'SCORE '+finalScore():scoreFlash>0?lastSectionScore:'TIME '+timeLeft.toFixed(1)+' SCORE '+score}","function showTime(){timer.textContent='TIME '+timeLeft.toFixed(1)+'  STAGE '+gameStage;scoreView.textContent='SCORE '+(score+stageScore)}"],
     ["if(over){a.push('GAME OVER','');for(let i=0;i<stageScores.length;i++)a.push('STAGE '+(i+1)+'      '+stageScores[i]);a.push('','BASE SCORE   '+score,'FINAL BONUS  x100 + STAGES '+stageScores.length,'FINAL SCORE  '+finalScore())}","if(over){a.push('GAME OVER','');for(let i=0;i<stageScores.length;i++)a.push('STAGE '+(i+1)+'      '+stageScores[i]);if(stageScore)a.push('STAGE '+gameStage+'      '+stageScore);a.push('','SCORE '+(score+stageScore))}"],
@@ -19,7 +23,7 @@ export function integrateRuntime(h){
     ["clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';clearDialog.classList.remove('show')","clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';timer.parentElement.style.display='';clearDialog.classList.remove('show')"],
     ["clearText.textContent='虹をたどって僕を見つけて！';nextBtn.textContent='GO'","clearText.textContent=Math.round(timeLeft)+'秒以内に虹をたどって僕を見つけて！';nextBtn.textContent='GO'"],
     ["clearText.textContent='SECTION CLEAR!'","clearText.textContent='SECTION CLEAR '+stage+'/'+maxStage"],
-    ["timeLeft=maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0","timeLeft=Math.ceil(timeLeft)+maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0"],
+    ["timeLeft=maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0","timeLeft=Math.ceil(timeLeft*stageRainbow/sectionScores.length/100)+maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0"],
     ["nextBtn.style.display='';clearDialog.classList.add('show')}}if(sectionClearT)","nextBtn.style.display='';clearDialog.style.cssText='position:fixed;left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:max-content;max-width:90vw;justify-content:center';clearDialog.classList.add('show')}}if(sectionClearT)"],
     ["if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.classList.remove('show')}","if(ready){ready=0;running=1;c.style.cursor='none';nextBtn.textContent='OK';clearText.textContent='もっと先にいるよ！';clearDialog.style.cssText='';clearDialog.classList.remove('show')}"],
     ["resetBtn.onclick=()=>{startAudio();if(timeUp){restartGame();return}if(intro===-1){startStage();intro=0;setRain(.006,.5);startHoof();resetBtn.style.display='none'}}","resetBtn.onclick=()=>{startAudio();if(timeUp){restartGame();return}if(intro===-1){document.querySelector('.seedbar').style.display='none';startStage();intro=0;setRain(.006,.5);startHoof();resetBtn.style.display='none'}}"],
@@ -29,7 +33,7 @@ export function integrateRuntime(h){
     ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.tim;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
     ["function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q),im=tutorialSprite(q),w=q.tiw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q);parts(x,a.x,a.y,q.s,'rgba(255,255,255,.88)')}}"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.19 Seed'"]
+    ["'v0.3 Seed'","'v0.20 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;

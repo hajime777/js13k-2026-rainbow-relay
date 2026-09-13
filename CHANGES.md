@@ -6,6 +6,12 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.19 — Round carried time up to whole seconds
+- Type: Gameplay / clarity
+- Status: Implemented
+- Change: When moving to the next Stage, the remaining time is rounded up with `Math.ceil()` before the new Stage allowance is added. For example, `19.7s` carries as `20s`, so the GO prompt and the actual available time agree.
+- Version: Bumped the visible/build version from `v0.18` to `v0.19`.
+
 ### v0.18 — Carry remaining time into the next Stage
 - Type: Gameplay / balance
 - Status: Implemented for final playtest

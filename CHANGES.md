@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.10 — Delay and lighten the goal result panel
+- Type: UI / presentation
+- Status: Implemented
+- Change: After reaching the Goal, the result panel now appears about 2 seconds later so the Goal animation remains visible before the summary covers the playfield.
+- Change: The white result-panel background is more transparent (`rgba(255,255,255,.52)`) so the completed rainbow remains easier to see behind it.
+- Change: The fixed SCORE display is refreshed when the final Section is scored, before the delayed result panel appears.
+- Version: Bumped the visible/build version from `v0.9` to `v0.10`.
+
 ### v0.9 — Simplify score presentation
 - Type: UI / clarity
 - Status: Implemented

@@ -1,5 +1,6 @@
 export function integrateRuntime(h){
   const r=[
+    ["SECONDS_PER_SECTION:5,INITIAL_TIME_BONUS:10","SECONDS_PER_SECTION:2,INITIAL_TIME_BONUS:12"],
     [".timer{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.12);padding:6px 10px;font-size:14px;font-weight:800;color:#69648a;pointer-events:none}",".score{position:absolute;right:10px;top:10px;min-width:100px;text-align:right;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.12);padding:6px 10px;font-size:14px;font-weight:800;color:#69648a;pointer-events:none}"],
     [".progress{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.10);padding:7px 9px}.meter{flex:1;height:7px;border-radius:99px;background:#e1e3ed;overflow:hidden}",".progress{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.92);border-radius:999px;box-shadow:0 8px 24px rgba(85,98,130,.10);padding:9px 11px}.time{white-space:nowrap;font-size:11px;font-weight:800}.meter{flex:1;height:9px;border-radius:99px;background:#e1e3ed;overflow:hidden}"],
     [".pct{min-width:28px;text-align:right;font-size:10px;font-weight:800}",".pct{min-width:32px;text-align:right;font-size:12px;font-weight:800}"],
@@ -27,7 +28,7 @@ export function integrateRuntime(h){
     ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.tim;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
     ["function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q),im=tutorialSprite(q),w=q.tiw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q);parts(x,a.x,a.y,q.s,'rgba(255,255,255,.88)')}}"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.15 Seed'"]
+    ["'v0.3 Seed'","'v0.16 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;

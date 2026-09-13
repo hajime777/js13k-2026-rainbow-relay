@@ -6,6 +6,12 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.15 — Show Section progress on clear
+- Type: UI / clarity
+- Status: Implemented
+- Change: The Section Clear message now includes the current and total Section count, e.g. `SECTION CLEAR 1/5`.
+- Version: Bumped the visible/build version from `v0.14` to `v0.15`.
+
 ### v0.14 — Simplify GAME OVER score and show current Stage
 - Type: Scoring / UI
 - Status: Implemented

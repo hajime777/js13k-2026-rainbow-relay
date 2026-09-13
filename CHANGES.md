@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.7 — Move TIME into the bottom progress bar
+- Type: UI / clarity
+- Status: Implemented
+- Change: Removed the top-right TIME display and fixed `TIME x.x` to the left side of the bottom rainbow progress bar, so Section score flashes no longer hide the remaining time after moving to the next Section.
+- Change: Enlarged the bottom progress bar slightly by increasing its padding, meter height, and percentage text size.
+- Change: The pre-game GO message now says `制限時間内に虹をたどって僕を見つけて！` so the time limit is clear before play starts.
+- Version: Bumped the visible/build version from `v0.6` to `v0.7`.
+
 ### v0.6 — Stop redrawing the overview every frame
 - Type: Performance / rendering
 - Status: Implemented

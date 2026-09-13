@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.11 — Simplify Goal and overview score layout
+- Type: UI / clarity
+- Status: Implemented
+- Change: Removed `TOTAL SCORE` from the delayed Goal result panel; that panel now keeps the Stage result details without repeating the total.
+- Change: On the full Stage overview, the bottom TIME/progress display is hidden and replaced by one opaque white row containing `TOTAL SCORE xxx` and the `Next Stage` / `EXTRA` button.
+- Change: The normal TIME/progress display is restored when the next Stage starts.
+- Version: Bumped the visible/build version from `v0.10` to `v0.11`.
+
 ### v0.10 — Delay and lighten the goal result panel
 - Type: UI / presentation
 - Status: Implemented

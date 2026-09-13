@@ -6,6 +6,12 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.12 — Hide the Seed bar when play starts
+- Type: UI / safety
+- Status: Implemented
+- Change: If the Seed input bar is open when `Start` is pressed, it is automatically hidden as gameplay begins so it is less likely to be pressed accidentally during play.
+- Version: Bumped the visible/build version from `v0.11` to `v0.12`.
+
 ### v0.11 — Simplify Goal and overview score layout
 - Type: UI / clarity
 - Status: Implemented

@@ -6,6 +6,15 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.24 — Tighten Stage 2+ time allowance
+- Type: Gameplay / balance
+- Status: Implemented for final playtest
+- Change: Stage 1 remains unchanged at its current 15-second starting budget.
+- Change: The final Goal Section is excluded from both the Stage cloud-clear-rate carryover calculation and the per-Stage added-time calculation, treating it as a bonus screen.
+- Change: Stage 2–9 now add `1.5 seconds × (total Sections - 1)`. For example, Stage 2 has 5 Sections but is timed as 4 playable Sections, adding 6 seconds.
+- Change: Stage 10 and later add `1 second × (total Sections - 1)` after cloud-rate-weighted carryover.
+- Version: Bumped the visible/build version from `v0.23` to `v0.24`.
+
 ### v0.23 — Stabilize Android Firefox viewport rendering
 - Type: Compatibility / rendering
 - Status: Implemented for urgent Android Firefox playtest

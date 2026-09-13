@@ -6,6 +6,14 @@ This file records every intentional game change from now on, not only bugs. Keep
 
 ## 2026-09-13
 
+### v0.29 — Limit Android Firefox rendering to 30fps
+- Type: Compatibility / rendering
+- Status: Implemented as a deadline-safe mitigation; root-cause investigation remains follow-up work
+- Change: Only Android Firefox limits Canvas drawing to about 30fps while keeping `requestAnimationFrame`, real-time `update()`, timer progression, and pointer input running normally.
+- Change: Other browsers, including desktop Firefox and Chrome, keep the existing rendering cadence.
+- Reason: Android Firefox still flickers after the v0.23 viewport stabilization; this isolates Canvas rendering load without changing game rules or simulation timing.
+- Version: Bumped the visible/build version from `v0.28` to `v0.29`.
+
 ### v0.28 — Show carry + added time + next total
 - Type: UI / clarity
 - Status: Implemented for playtest

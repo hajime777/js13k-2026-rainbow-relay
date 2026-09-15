@@ -5,7 +5,15 @@ Reports prefixed with `Xバグ` (`Aバグ`, `Bバグ`, `Cバグ`, etc.) are adde
 
 ## Open
 
-- None.
+### Known issue — Timed GO prompt does not live-update after language switch
+- Status: Known / not fixed in submitted build
+- Reported: 2026-09-15
+- Symptom: If the timed GO prompt is already visible and the player switches the UI language between JA and EN, the currently displayed prompt may remain in the previous language until it is regenerated.
+- Expected initial-language behavior: JA browser language starts in Japanese; EN starts in English; other browser languages fall back to English.
+- Expected manual behavior: Selecting JA uses Japanese; selecting EN uses English.
+- Examples: JA selected before the GO prompt appears -> Japanese prompt. EN selected before the GO prompt appears -> English prompt. Switching language while the GO prompt is already visible may leave that prompt unchanged.
+- Impact: Display-only. Gameplay, scoring, timing, and progression are unaffected.
+- Code change: None. Documented only; submitted game code remains unchanged.
 
 ## Fixed
 

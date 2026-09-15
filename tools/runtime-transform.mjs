@@ -23,7 +23,7 @@ export function integrateRuntime(h){
     ["function nextStage(){if(timeUp)return;sectionScore();captureStage();","function nextStage(){if(timeUp)return;stageCloud+=cloudScore;stageCloudN+=clouds.length;sectionScore();captureStage();"],
     ["function showOverview(){overview=1;down=0;last=null;clearDialog.style.pointerEvents='';clearText.textContent=stageSummary();nextBtn.textContent=gameStage>=campaignLimit?'EXTRA':'Next Stage';nextBtn.style.display='';clearDialog.classList.add('show');pct.textContent=maxStage+'/'+maxStage;fill.style.width='100%';drawOverview()}","function showOverview(){overview=1;down=0;last=null;timer.parentElement.style.display='none';clearDialog.style.cssText='background:#fff';clearText.style.fontSize='';nextBtn.style.alignSelf='';clearDialog.style.pointerEvents='';clearText.textContent='TOTAL SCORE '+score;nextBtn.textContent=gameStage>=campaignLimit?'EXTRA':'Next Stage';nextBtn.style.display='';clearDialog.classList.add('show');pct.textContent=maxStage+'/'+maxStage;fill.style.width='100%';drawOverview()}"],
     ["clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';clearDialog.classList.remove('show')","clearDialog.style.cssText='';clearText.style.fontSize='';nextBtn.style.alignSelf='';timer.parentElement.style.display='';clearDialog.classList.remove('show')"],
-    ["clearText.textContent='虹をたどって僕を見つけて！';nextBtn.textContent='GO'","clearText.textContent=Math.round(timeLeft)+(navigator.language[0]=='j'?'秒以内に虹をたどって！':'s: Follow the rainbow!');nextBtn.textContent='GO'"],
+    ["clearText.textContent='虹をたどって僕を見つけて！';nextBtn.textContent='GO'","clearText.textContent=Math.round(timeLeft)+(document.documentElement.lang[0]=='j'?'秒以内に虹をたどって！':'s: Follow the rainbow!');nextBtn.textContent='GO'"],
     ["clearText.textContent='SECTION CLEAR!'","clearText.textContent='SECTION CLEAR '+stage+'/'+maxStage"],
     ["timeLeft=maxStage*GAME_CONFIG.SECONDS_PER_SECTION;timeUp=0","timeLeft=Math.ceil(timeLeft*stageCloud/stageCloudN)+(maxStage-1)*1.5;timeUp=0"],
     ["nextBtn.style.display='';clearDialog.classList.add('show')}}if(sectionClearT)","nextBtn.style.display='';clearDialog.style.cssText='position:fixed;left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:max-content;max-width:90vw;justify-content:center';clearDialog.classList.add('show')}}if(sectionClearT)"],
@@ -38,7 +38,7 @@ export function integrateRuntime(h){
     ["function tutorialSprite(q){let k=q.s+'|'+D;if(q.tim&&q.tik===k)return q.tim;let z=q.s*2.4+16,w=Math.ceil(z*D),im=q.tim||document.createElement('canvas');im.width=im.height=w;let g=im.getContext('2d'),m=z/2;g.setTransform(D,0,0,D,0,0);parts(g,m,m,q.s,'rgba(255,255,255,.88)');q.tim=im;q.tik=k;q.tiw=z;return im}",""],
     ["function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q),im=tutorialSprite(q),w=q.tiw;x.drawImage(im,a.x-w/2,a.y-w/2,w,w)}}","function drawTutorialClouds(){for(const q of clouds.slice(0,6)){let a=cloudPos(q);parts(x,a.x,a.y,q.s,'rgba(255,255,255,.88)')}}"],
     ["function draw(){if(overview){drawOverview();return}if(transition)","function draw(){if(overview)return;if(transition)"],
-    ["'v0.3 Seed'","'v0.34 Seed'"]
+    ["'v0.3 Seed'","'v0.33 Seed'"]
   ];
   for(const [a,b] of r){const n=h.replace(a,b);if(n===h)throw Error('runtime transform target missing');h=n}
   return h;
